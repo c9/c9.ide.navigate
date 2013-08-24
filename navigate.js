@@ -128,7 +128,9 @@ define(function(require, exports, module) {
             }
             // Offline
             else {
-                txtGoToFile.disable();
+                // do not close panel while typing
+                if (!txtGoToFile.ace.isFocused())
+                    txtGoToFile.disable();
                 //@Harutyun This doesn't work
                 // tree.disable();
             }
