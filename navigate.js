@@ -113,7 +113,7 @@ define(function(require, exports, module) {
             filetree.on("refresh", markDirty); 
             
             // Or when we change the visibility of hidden files
-            fsCache.on("showHidden.set", markDirty);
+            fsCache.on("setShowHidden", markDirty);
             
             // Pre-load file list
             updateFileCache();
