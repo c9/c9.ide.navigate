@@ -57,12 +57,12 @@ define(function(require, exports, module) {
                 draw         : draw
             });
             
-            panels.on("showpanel.navigate", function(e){
+            panels.on("showpanelNavigate", function(e){
                 lastPanel = e.lastPanel;
                 txtGoToFile.focus();
                 txtGoToFile.select();
             });
-            panels.on("hidepanel.navigate", function(e){
+            panels.on("hidepanelNavigate", function(e){
                 tree && tree.clearSelection();
             });
             panels.on("afterAnimate", function(){
@@ -223,7 +223,7 @@ define(function(require, exports, module) {
             txtGoToFile.focus();
             
             // Offline
-            c9.on("state.change", offlineHandler, plugin);
+            c9.on("stateChange", offlineHandler, plugin);
             offlineHandler({ state: c9.status });
         
             emit("draw");
@@ -237,7 +237,7 @@ define(function(require, exports, module) {
             
             // Wait until window is visible
             if (!winGoToFile.visible) {
-                winGoToFile.on("prop.visible", function visible(e){
+                winGoToFile.on("propVisible", function visible(e){
                     if (e.value) {
                         reloadResults();
                         winGoToFile.off("prop.visible", visible);
