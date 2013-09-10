@@ -65,7 +65,7 @@ define(function(require, exports, module) {
             panels.on("hidepanel.navigate", function(e){
                 tree && tree.clearSelection();
             });
-            panels.on("after.animate", function(){
+            panels.on("afterAnimate", function(){
                 tree && tree.resize();
             })
             
@@ -93,17 +93,17 @@ define(function(require, exports, module) {
             }, plugin);
     
             // Update when the fs changes
-            fs.on("after.writeFile", function(e){
+            fs.on("afterWriteFile", function(e){
                 // Only mark dirty if file didn't exist yet
                 if (arrayCache.indexOf(e.path) == -1)
                     markDirty(e);
             });
-            fs.on("after.unlink",    markDirty);
-            fs.on("after.rmfile",    markDirty);
-            fs.on("after.rmdir",     markDirty);
-            fs.on("after.copy",      markDirty);
-            fs.on("after.rename",    markDirty);
-            fs.on("after.symlink",   markDirty);
+            fs.on("afterUnlink",    markDirty);
+            fs.on("afterRmfile",    markDirty);
+            fs.on("afterRmdir",     markDirty);
+            fs.on("afterCopy",      markDirty);
+            fs.on("afterRename",    markDirty);
+            fs.on("afterSymlink",   markDirty);
             
             // Or when a watcher fires
             watcher.on("delete",     markDirty);
