@@ -333,14 +333,14 @@ define(function(require, exports, module) {
             if (!keyword || !keyword.length) {
                 var result = arrayCache.slice();
                 // More prioritization for already open files
-                tabs.getPages().forEach(function (page) {
-                    if (!page.path
-                      || page.document.meta.preview) return;
+                tabs.getPages().forEach(function (tab) {
+                    if (!tab.path
+                      || tab.document.meta.preview) return;
                     
-                    var idx = result.indexOf(page.path);
+                    var idx = result.indexOf(tab.path);
                     if (idx > -1) {
                         result.splice(idx, 1);
-                        result.unshift(page.path);
+                        result.unshift(tab.path);
                     }
                 });
                 searchResults = result;
@@ -396,7 +396,7 @@ define(function(require, exports, module) {
             var row   = ldSearch.selectedRow;
             nodes.push(ldSearch.visibleItems[row]);
     
-            // Cancel Preview and Keep the page if there's only one
+            // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
                 return hide();
             
