@@ -207,9 +207,9 @@ define(function(require, exports, module) {
                 
                 var to = e.toElement;
                 if (!to || apf.isChildOf(winGoToFile, to, true)
-                  || (lastPreviewed && tabs.previewPage 
-                  && tabs.previewPage === lastPreviewed
-                  && (apf.isChildOf(lastPreviewed.aml.relPage, to, true)
+                  || (lastPreviewed && tabs.previewTab 
+                  && tabs.previewTab === lastPreviewed
+                  && (apf.isChildOf(lastPreviewed.aml.relTab, to, true)
                   || lastPreviewed.aml == to))) {
                     return;
                 }
@@ -333,7 +333,7 @@ define(function(require, exports, module) {
             if (!keyword || !keyword.length) {
                 var result = arrayCache.slice();
                 // More prioritization for already open files
-                tabs.getPages().forEach(function (tab) {
+                tabs.getTabs().forEach(function (tab) {
                     if (!tab.path
                       || tab.document.meta.preview) return;
                     
@@ -361,7 +361,7 @@ define(function(require, exports, module) {
     
             // See if there are open files that match the search results
             // and the first if in the displayed results
-            var pages = tabs.getPages(), hash = {};
+            var pages = tabs.getTabs(), hash = {};
             for (var i = pages.length - 1; i >= 0; i--) {
                 if (!pages[i].document.meta.preview)
                     hash[pages[i].path] = true;
@@ -446,8 +446,8 @@ define(function(require, exports, module) {
                 // Cancel Preview
                 tabs.preview({ cancel: true });
                 
-                if (tabs.focussedPage)
-                    tabs.focussedPage.editor.focus();
+                if (tabs.focussedTab)
+                    tabs.focussedTab.editor.focus();
             }
         }
         
