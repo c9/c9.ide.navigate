@@ -209,7 +209,7 @@ define(function(require, exports, module) {
                 if (!to || apf.isChildOf(winGoToFile, to, true)
                   || (lastPreviewed && tabs.previewTab 
                   && tabs.previewTab === lastPreviewed
-                  && (apf.isChildOf(lastPreviewed.aml.relTab, to, true)
+                  && (apf.isChildOf(lastPreviewed.aml.relPage, to, true)
                   || lastPreviewed.aml == to))) {
                     return;
                 }
