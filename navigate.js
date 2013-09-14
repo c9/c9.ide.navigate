@@ -1,13 +1,13 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "plugin", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
+        "Plugin", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
         "panels", "fs.cache.xml", "preferences", "c9", "tree"
     ];
     main.provides = ["navigate"];
     return main;
     
     function main(options, imports, register) {
-        var Plugin   = imports.plugin;
+        var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var ui       = imports.ui;
         var c9       = imports.c9;
