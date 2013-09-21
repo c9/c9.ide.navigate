@@ -1,19 +1,19 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "plugin", "settings", "ui", "watcher", "menus", "tabs", "find", "fs", 
+        "Plugin", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
         "panels", "fs.cache.xml", "preferences", "c9", "tree"
     ];
     main.provides = ["navigate"];
     return main;
     
     function main(options, imports, register) {
-        var Plugin   = imports.plugin;
+        var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var ui       = imports.ui;
         var c9       = imports.c9;
         var fs       = imports.fs;
         var fsCache  = imports["fs.cache.xml"];
-        var tabs     = imports.tabs;
+        var tabs     = imports.tabManager;
         var menus    = imports.menus;
         var watcher  = imports.watcher;
         var panels   = imports.panels;
@@ -57,15 +57,15 @@ define(function(require, exports, module) {
                 draw         : draw
             });
             
-            panels.on("showpanel.navigate", function(e){
+            panels.on("showpanelNavigate", function(e){
                 lastPanel = e.lastPanel;
                 txtGoToFile.focus();
                 txtGoToFile.select();
             });
-            panels.on("hidepanel.navigate", function(e){
+            panels.on("hidepanelNavigate", function(e){
                 tree && tree.clearSelection();
             });
-            panels.on("after.animate", function(){
+            panels.on("afterAnimate", function(){
                 tree && tree.resize();
             })
             
@@ -93,17 +93,17 @@ define(function(require, exports, module) {
             }, plugin);
     
             // Update when the fs changes
-            fs.on("after.writeFile", function(e){
+            fs.on("afterWriteFile", function(e){
                 // Only mark dirty if file didn't exist yet
                 if (arrayCache.indexOf(e.path) == -1)
                     markDirty(e);
             });
-            fs.on("after.unlink",    markDirty);
-            fs.on("after.rmfile",    markDirty);
-            fs.on("after.rmdir",     markDirty);
-            fs.on("after.copy",      markDirty);
-            fs.on("after.rename",    markDirty);
-            fs.on("after.symlink",   markDirty);
+            fs.on("afterUnlink",    markDirty);
+            fs.on("afterRmfile",    markDirty);
+            fs.on("afterRmdir",     markDirty);
+            fs.on("afterCopy",      markDirty);
+            fs.on("afterRename",    markDirty);
+            fs.on("afterSymlink",   markDirty);
             
             // Or when a watcher fires
             watcher.on("delete",     markDirty);
@@ -113,7 +113,7 @@ define(function(require, exports, module) {
             filetree.on("refresh", markDirty); 
             
             // Or when we change the visibility of hidden files
-            fsCache.on("showHidden.set", markDirty);
+            fsCache.on("setShowHidden", markDirty);
             
             // Pre-load file list
             updateFileCache();
@@ -207,8 +207,8 @@ define(function(require, exports, module) {
                 
                 var to = e.toElement;
                 if (!to || apf.isChildOf(winGoToFile, to, true)
-                  || (lastPreviewed && tabs.previewPage 
-                  && tabs.previewPage === lastPreviewed
+                  || (lastPreviewed && tabs.previewTab 
+                  && tabs.previewTab === lastPreviewed
                   && (apf.isChildOf(lastPreviewed.aml.relPage, to, true)
                   || lastPreviewed.aml == to))) {
                     return;
@@ -223,7 +223,7 @@ define(function(require, exports, module) {
             txtGoToFile.focus();
             
             // Offline
-            c9.on("state.change", offlineHandler, plugin);
+            c9.on("stateChange", offlineHandler, plugin);
             offlineHandler({ state: c9.status });
         
             emit("draw");
@@ -237,7 +237,7 @@ define(function(require, exports, module) {
             
             // Wait until window is visible
             if (!winGoToFile.visible) {
-                winGoToFile.on("prop.visible", function visible(e){
+                winGoToFile.on("propVisible", function visible(e){
                     if (e.value) {
                         reloadResults();
                         winGoToFile.off("prop.visible", visible);
@@ -333,14 +333,14 @@ define(function(require, exports, module) {
             if (!keyword || !keyword.length) {
                 var result = arrayCache.slice();
                 // More prioritization for already open files
-                tabs.getPages().forEach(function (page) {
-                    if (!page.path
-                      || page.document.meta.preview) return;
+                tabs.getTabs().forEach(function (tab) {
+                    if (!tab.path
+                      || tab.document.meta.preview) return;
                     
-                    var idx = result.indexOf(page.path);
+                    var idx = result.indexOf(tab.path);
                     if (idx > -1) {
                         result.splice(idx, 1);
-                        result.unshift(page.path);
+                        result.unshift(tab.path);
                     }
                 });
                 searchResults = result;
@@ -361,7 +361,7 @@ define(function(require, exports, module) {
     
             // See if there are open files that match the search results
             // and the first if in the displayed results
-            var pages = tabs.getPages(), hash = {};
+            var pages = tabs.getTabs(), hash = {};
             for (var i = pages.length - 1; i >= 0; i--) {
                 if (!pages[i].document.meta.preview)
                     hash[pages[i].path] = true;
@@ -396,7 +396,7 @@ define(function(require, exports, module) {
             var row   = ldSearch.selectedRow;
             nodes.push(ldSearch.visibleItems[row]);
     
-            // Cancel Preview and Keep the page if there's only one
+            // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
                 return hide();
             
@@ -446,8 +446,8 @@ define(function(require, exports, module) {
                 // Cancel Preview
                 tabs.preview({ cancel: true });
                 
-                if (tabs.focussedPage)
-                    tabs.focussedPage.editor.focus();
+                if (tabs.focussedTab)
+                    tabs.focussedTab.editor.focus();
             }
         }
         
