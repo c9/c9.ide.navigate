@@ -237,7 +237,7 @@ define(function(require, exports, module) {
             
             // Wait until window is visible
             if (!winGoToFile.visible) {
-                winGoToFile.on("propVisible", function visible(e){
+                winGoToFile.on("prop.visible", function visible(e){
                     if (e.value) {
                         reloadResults();
                         winGoToFile.off("prop.visible", visible);
