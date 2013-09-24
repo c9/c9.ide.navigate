@@ -1,13 +1,13 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Plugin", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
+        "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
         "panels", "fs.cache.xml", "preferences", "c9", "tree"
     ];
     main.provides = ["navigate"];
     return main;
     
     function main(options, imports, register) {
-        var Plugin   = imports.Plugin;
+        var Panel    = imports.Panel;
         var settings = imports.settings;
         var ui       = imports.ui;
         var c9       = imports.c9;
@@ -28,11 +28,17 @@ define(function(require, exports, module) {
         
         /***** Initialization *****/
         
-        var plugin = new Plugin("Ajax.org", main.consumes);
+        var plugin = new Panel("Ajax.org", main.consumes, {
+            index        : 200,
+            caption      : "Navigate",
+            elementName  : "winGoToFile",
+            minWidth     : 130,
+            autohide     : true
+        });
         var emit   = plugin.getEmitter();
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
-        var lastPanel, lastSearch, lastPreviewed;
+        var lastSearch, lastPreviewed;
         
         var dirty         = true;
         var arrayCache    = [];
@@ -43,28 +49,12 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
-            // Register this panel on the left-side panels
-            panels.register({
-                index        : 200,
-                caption      : "Navigate",
-                command      : "navigate",
-                hint         : "search for a filename, line or symbol and jump to it",
-                bindKey      : { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" },
-                panel        : plugin,
-                elementName  : "winGoToFile",
-                minWidth     : 130,
-                autohide     : true,
-                draw         : draw
+            plugin.setCommand({
+                name    : "navigate",
+                hint    : "search for a filename, line or symbol and jump to it",
+                bindKey : { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" }
             });
             
-            panels.on("showpanelNavigate", function(e){
-                lastPanel = e.lastPanel;
-                txtGoToFile.focus();
-                txtGoToFile.select();
-            });
-            panels.on("hidepanelNavigate", function(e){
-                tree && tree.clearSelection();
-            });
             panels.on("afterAnimate", function(){
                 tree && tree.resize();
             })
@@ -140,7 +130,7 @@ define(function(require, exports, module) {
             drawn = true;
             
             // Create UI elements
-            ui.insertMarkup(options.panel, markup, plugin);
+            ui.insertMarkup(options.aml, markup, plugin);
             
             // Import CSS
             ui.insertCss(require("text!./style.css"), plugin);
@@ -168,7 +158,7 @@ define(function(require, exports, module) {
             txtGoToFile.ace.commands.addCommands([
                 {
                     bindKey : "ESC",
-                    exec    : function(){ hide(); }
+                    exec    : function(){ plugin.hide(); }
                 }, {
                     bindKey : "Up",
                     exec    : function(){ tree.execCommand("goUp"); }
@@ -214,7 +204,7 @@ define(function(require, exports, module) {
                     return;
                 }
                 
-                hide();
+                plugin.hide();
             }
     
             apf.addEventListener("movefocus", onblur);
@@ -225,8 +215,6 @@ define(function(require, exports, module) {
             // Offline
             c9.on("stateChange", offlineHandler, plugin);
             offlineHandler({ state: c9.status });
-        
-            emit("draw");
         }
         
         /***** Methods *****/
@@ -398,9 +386,9 @@ define(function(require, exports, module) {
     
             // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
-                return hide();
+                return plugin.hide();
             
-            hide();
+            plugin.hide();
             
             var fn = function(){};
             for (var i = 0, l = nodes.length; i < l; i++) {
@@ -431,36 +419,30 @@ define(function(require, exports, module) {
             var path  = "/" + value.replace(/^[\/]+/, "");
             lastPreviewed = tabs.preview({ path: path }, function(){});
         }
-
-        function show() {
-            panels.activate("navigate");
-        }
-        
-        function hide(){
-            if (panels.isActive("navigate")) {
-                if (lastPanel)
-                    panels.activate(lastPanel);
-                else
-                    panels.deactivate("navigate");
-                
-                // Cancel Preview
-                tabs.preview({ cancel: true });
-                
-                if (tabs.focussedTab)
-                    tabs.focussedTab.editor.focus();
-            }
-        }
         
         /***** Lifecycle *****/
         
         plugin.on("load", function(){
             load();
         });
+        plugin.on("draw", function(){
+            draw();
+        });
         plugin.on("enable", function(){
             
         });
         plugin.on("disable", function(){
             
+        });
+        plugin.on("show", function(e){
+            txtGoToFile.focus();
+            txtGoToFile.select();
+        });
+        plugin.on("hide", function(e){
+            tree && tree.clearSelection();
+            
+            // Cancel Preview
+            tabs.preview({ cancel: true });
         });
         plugin.on("unload", function(){
             loaded = false;
@@ -470,13 +452,25 @@ define(function(require, exports, module) {
         /***** Register and define API *****/
         
         /**
-         * Navigation panel. Navigates to files, lines and symbols
+         * Navigation panel. Allows a user to navigate to files by searching
+         * for a fuzzy string that matches the path of the file.
+         * @singleton
          **/
+        /**
+         * @command navigate
+         */
+        /**
+         * Fires when the navigate panel shows
+         * @event showPanelNavigate
+         * @member panels
+         */
+        /**
+         * Fires when the navigate panel hides
+         * @event hidePanelNavigate
+         * @member panels
+         */
         plugin.freezePublicAPI({
-            /**
-             * 
-             */
-            show : show
+            
         });
         
         register(null, {
