@@ -425,8 +425,8 @@ define(function(require, exports, module) {
         plugin.on("load", function(){
             load();
         });
-        plugin.on("draw", function(){
-            draw();
+        plugin.on("draw", function(e){
+            draw(e);
         });
         plugin.on("enable", function(){
             
