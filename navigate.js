@@ -66,7 +66,8 @@ define(function(require, exports, module) {
                 tree && tree.clearSelection();
             });
             panels.on("afterAnimate", function(){
-                tree && tree.resize();
+                if (panels.isActive("navigate"))
+                    tree && tree.resize();
             })
             
             // Menus
@@ -172,19 +173,28 @@ define(function(require, exports, module) {
                     bindKey : "ESC",
                     exec    : function(){ hide(); }
                 }, {
-                    bindKey : "Up",
-                    exec    : function(){ tree.execCommand("goUp"); }
-                }, {
-                    bindKey : "Down",
-                    exec    : function(){ tree.execCommand("goDown"); }
-                }, {
                     bindKey : "Enter",
                     exec    : function(){ openFile(true); }
-                }
+                },
+                tree.commands.centerselection,
+                tree.commands.goToStart,
+                tree.commands.goToEnd,
+                tree.commands.pageup,
+                tree.commands.gotopageup,
+                tree.commands.scrollup,
+                tree.commands.scrolldown,
+                tree.commands.goUp,
+                tree.commands.goDown,
+                tree.commands.selectUp,
+                tree.commands.selectDown,
+                tree.commands.selectMoreUp,
+                tree.commands.selectMoreDown
             ]);
             
-            tree.on("click", function(e){
-                openFile(true);
+            tree.on("click", function(ev){
+                var e = e.domEvent;
+                if (!e.shiftKey && !e.metaKey  && !e.optionKey  && !e.altKey)
+                    openFile(true);
             });
             
             txtGoToFile.ace.on("input", function(e) {
@@ -196,12 +206,8 @@ define(function(require, exports, module) {
                     updateFileCache(true);
                 }
             });
-
-            // @Harutyun, the select event should be on the tree or the selection object
-            //      I just hacked it into the dataprovider for now, but that is very wrong.
-            // tree.getSelection().on("changeSelection", function(){ previewFile(); });
-            // tree.on("select", function(){ previewFile(); });
-            ldSearch.on("select", function(){ previewFile(); });
+            
+            tree.selection.on("changeSelection", function(){ previewFile(); });
     
             function onblur(e){
                 if (!winGoToFile.visible)
@@ -216,7 +222,8 @@ define(function(require, exports, module) {
                     return;
                 }
                 
-                hide();
+                // TODO add better support for overlay panels
+                setTimeout(hide, 10);
             }
     
             apf.addEventListener("movefocus", onblur);
@@ -256,11 +263,11 @@ define(function(require, exports, module) {
             //     sel.push(searchResults[i]);
             // });
             
-            // var state = {
-            //     sel : sel, //store previous selection
-            //     caret : dgGoToFile.caret && searchResults[dgGoToFile.caret.firstChild.nodeValue],
-            //     scrollTop : dgGoToFile.$viewport.getScrollTop()
-            // };
+            var state = {
+                sel : sel, //store previous selection
+                caret : dgGoToFile.caret && searchResults[dgGoToFile.caret.firstChild.nodeValue],
+                scrollTop : app.navigate.tree.provider.getScrollTop()
+            };
 
             if (lastSearch)
                 filter(lastSearch);//, state.sel.length);
@@ -389,14 +396,8 @@ define(function(require, exports, module) {
         function openFile(noanim){
             if (!ldSearch.loaded)
                 return false;
-                
-            // @Harutyun, How do I get the selection (multiple)
-            // var nodes = dgGoToFile.getSelection();
-    
-            // Temporary
-            var nodes = [];
-            var row   = ldSearch.selectedRow;
-            nodes.push(ldSearch.visibleItems[row]);
+
+            var nodes = tree.selection.getSelectedNodes();
     
             // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
@@ -425,8 +426,8 @@ define(function(require, exports, module) {
             if (!ldSearch.loaded)
                 return false;
             
-            var row   = ldSearch.selectedRow;
-            var value = ldSearch.visibleItems[row];
+            var node = tree.selection.getCursor();
+            var value = node && node.path;
             if (!value)
                 return;
                 
@@ -475,6 +476,7 @@ define(function(require, exports, module) {
          * Navigation panel. Navigates to files, lines and symbols
          **/
         plugin.freezePublicAPI({
+            get tree() { return tree; },
             /**
              * 
              */
