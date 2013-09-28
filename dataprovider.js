@@ -23,14 +23,14 @@ define(function(require, exports, module) {
             
             // @TODO Deal with selection
             this._signal("change");
-        }
+        };
         
         this.getEmptyMessage = function(){
             if (!this.keyword)
                 return "Loading file list. One moment please...";
             else
                 return "No files found that match '" + this.keyword + "'";
-        }
+        };
     
         this.getDataRange = function(rows, columns, callback) {
             var view = this.visibleItems.slice(rows.start, rows.start + rows.length);        
@@ -53,7 +53,7 @@ define(function(require, exports, module) {
         // todo move selection stuff out of here
         this.select = function(index) {
             this.selectNode({index: index});
-        }
+        };
         this.selectNode = function(node) {
             if (!node) return;
             this.$selectedNode = node;
@@ -63,11 +63,11 @@ define(function(require, exports, module) {
         };
         
         this.getNodePosition = function(node) {
-            var i = node.index;
+            var i = node ? node.index : 0;
             var top = i * this.rowHeight;
-            var height = this.rowHeight
-            return {top: top, height: height}
-        }
+            var height = this.rowHeight;
+            return {top: top, height: height};
+        };
         
         this.findItemAtOffset = function(offset) {
             var index = Math.floor(offset / this.rowHeight);
@@ -95,7 +95,7 @@ define(function(require, exports, module) {
                     result[i] = part.val;
             });
             return result.join("");
-        }
+        };
     
         this.renderRow = function(row, html, config) {
             var path     = this.visibleItems[row];
@@ -112,15 +112,15 @@ define(function(require, exports, module) {
             if  (typeof startNode == "number")
                 var index = startNode;
             else
-                index = this.selectedRow || 0
+                index = this.selectedRow || 0;
             
             if (dir == "up") {
-                index = Math.max(index - 1, 0)
+                index = Math.max(index - 1, 0);
             } else if (dir == "down") {
-                index = Math.min(index + 1, this.visibleItems.length)
+                index = Math.min(index + 1, this.visibleItems.length);
             }
-            return {label:this.visibleItems[index], index: index};
-        }
+            return {label: this.visibleItems[index], index: index};
+        };
     }).call(ListData.prototype);
     
     return ListData;
