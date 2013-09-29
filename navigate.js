@@ -456,6 +456,7 @@ define(function(require, exports, module) {
          * Navigation panel. Allows a user to navigate to files by searching
          * for a fuzzy string that matches the path of the file.
          * @singleton
+         * @extends Panel
          **/
         /**
          * @command navigate
