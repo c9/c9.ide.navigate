@@ -36,7 +36,6 @@ define(function(require, exports, module) {
         
         var dirty         = true;
         var arrayCache    = [];
-        var inputSelection;
         var timer;
         
         var loaded = false;
@@ -64,7 +63,7 @@ define(function(require, exports, module) {
                 txtGoToFile.select();
             });
             panels.on("hidepanelNavigate", function(e){
-                tree && tree.clearSelection();
+                tree && tree.selection.selectNode(null);
             });
             panels.on("afterAnimate", function(){
                 if (panels.isActive("navigate"))
@@ -212,19 +211,6 @@ define(function(require, exports, module) {
                     openFile(true);
             });
             
-            tree.on("changeSelection", function(ev){
-                cursor = tree.selection.getCursor();
-                if (cursor && cursor.id) {
-                    if (!inputSelection) {
-                        inputSelection = txtGoToFile.ace.selection.toJSON();
-                        txtGoToFile.ace.selectAll();
-                    }
-                } else if (inputSelection) {
-                    txtGoToFile.ace.selection.fromJSON(inputSelection);
-                    inputSelection = null;
-                }
-            });
-            
             tree.selection.$wrapAround = true;
             
             txtGoToFile.ace.on("input", function(e) {
@@ -286,24 +272,16 @@ define(function(require, exports, module) {
             }
             
             
-            var sel = [];
-            tree.selection.getSelectedNodes();
+            var sel = tree.selection.getSelectedNodes();
 
             var state = {
-                sel : sel, //store previous selection
                 scrollTop : tree.provider.getScrollTop()
             };
 
-            if (lastSearch)
-                filter(lastSearch, state.sel.length);
-            else
+            if (lastSearch) {
+                filter(lastSearch, sel.length);
+            } else {
                 ldSearch.updateData(arrayCache);
-            
-            if (state.sel.length) {
-                tree.selection.clear();
-                for (var i = 0, l = sel.length; i < l; i++) {
-                    tree.selection.add(sel[i]);
-                }
             }
         }
     
@@ -355,7 +333,7 @@ define(function(require, exports, module) {
             ldSearch.keyword = keyword;
             
             var searchResults;
-            if (!keyword || !keyword.length) {
+            if (!keyword) {
                 var result = arrayCache.slice();
                 // More prioritization for already open files
                 tabs.getTabs().forEach(function (tab) {
@@ -383,30 +361,33 @@ define(function(require, exports, module) {
             if (nosel || !searchResults.length)
                 return;
     
-            // See if there are open files that match the search results
-            // and the first if in the displayed results
-            var pages = tabs.getTabs(), hash = {};
-            for (var i = pages.length - 1; i >= 0; i--) {
-                if (!pages[i].document.meta.preview)
-                    hash[pages[i].path] = true;
-            }
-            
-            // loop over all visible items. If we find a visible item
-            // that is in the `hash`, select it and return.
-            var first = keyword ? 0 : -1;
-            var last = tree.renderer.$size.height / tree.provider.rowHeight;
-            for (var i = 0; i < last; i++) {
-                if (hash[ldSearch.visibleItems[i]]) {
-                    first = i;
-                    break;
+            var first = -1;
+            if (keyword) {
+                first = 0
+                // See if there are open files that match the search results
+                // and the first if in the displayed results
+                var openTabs = tabs.getTabs(), hash = {};
+                for (var i = openTabs.length - 1; i >= 0; i--) {
+                    var tab = openTabs[i];
+                    if (!tab.document.meta.preview) {
+                        if (fs.getFilename(tab.path).indexOf(keyword) == 0)
+                            hash[tab.path] = true;
+                    }
+                }
+                
+                // loop over all visible items. If we find a visible item
+                // that is in the `hash`, select it and return.
+                
+                var last = tree.renderer.$size.height / tree.provider.rowHeight;
+                for (var i = 0; i < last; i++) {
+                    if (hash[ldSearch.visibleItems[i]]) {
+                        first = i;
+                        break;
+                    }
                 }
             }
-    
-            // prvent filter input from being selected
-            inputSelection = txtGoToFile.ace.selection.toJSON();
             // select the first item in the list
             tree.select(tree.provider.getNodeAtIndex(first));
-            inputSelection = null;
         }
 
         function openFile(noanim){
