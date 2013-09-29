@@ -369,7 +369,7 @@ define(function(require, exports, module) {
                 var openTabs = tabs.getTabs(), hash = {};
                 for (var i = openTabs.length - 1; i >= 0; i--) {
                     var tab = openTabs[i];
-                    if (!tab.document.meta.preview) {
+                    if (!tab.document.meta.preview && tab.path) {
                         if (fs.getFilename(tab.path).indexOf(keyword) == 0)
                             hash[tab.path] = true;
                     }
