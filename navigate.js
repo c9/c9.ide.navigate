@@ -36,6 +36,7 @@ define(function(require, exports, module) {
         
         var dirty         = true;
         var arrayCache    = [];
+        var inputSelected = true;
         var timer;
         
         var loaded = false;
@@ -213,9 +214,16 @@ define(function(require, exports, module) {
             
             tree.on("changeSelection", function(ev){
                 cursor = tree.selection.getCursor();
-                if (cursor && cursor.id)
-                    txtGoToFile.ace.selectAll();
-            })
+                if (cursor && cursor.id) {
+                    if (inputSelected)
+                        txtGoToFile.ace.selectAll();
+                    inputSelected = false;
+                } else {
+                    inputSelected = true;
+                }
+            });
+            
+            tree.selection.$wrapAround = true;
             
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
@@ -383,19 +391,19 @@ define(function(require, exports, module) {
             
             // loop over all visible items. If we find a visible item
             // that is in the `hash`, select it and return.
-            var first = tree.renderer.getFirstVisibleRow();
-            var last = tree.renderer.getLastVisibleRow();
-            for (var i = first; i < last; i++) {
+            var first = keyword ? 0 : -1;
+            var last = tree.renderer.$size.height / tree.provider.rowHeight;
+            for (var i = 0; i < last; i++) {
                 if (hash[ldSearch.visibleItems[i]]) {
-                    tree.select(i);
-                    return;
+                    first = i;
+                    break;
                 }
             }
     
             // select the first item in the list
-            if (keyword) {
-                tree.select(0);
-            }
+            inputSelected = false;
+            tree.select(tree.provider.getNodeAtIndex(first));
+            inputSelected = true;
         }
 
         function openFile(noanim){
