@@ -206,7 +206,8 @@ define(function(require, exports, module) {
             
             tree.on("click", function(ev){
                 var e = ev.domEvent;
-                if (!e.shiftKey && !e.metaKey  && !e.optionKey  && !e.altKey)
+                if (!e.shiftKey && !e.metaKey  && !e.ctrlKey  && !e.altKey)
+                if (tree.selection.getSelectedNodes().length === 1)
                     openFile(true);
             });
             
