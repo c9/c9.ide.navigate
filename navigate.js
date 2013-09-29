@@ -36,7 +36,7 @@ define(function(require, exports, module) {
         
         var dirty         = true;
         var arrayCache    = [];
-        var inputSelected = true;
+        var inputSelection;
         var timer;
         
         var loaded = false;
@@ -215,11 +215,13 @@ define(function(require, exports, module) {
             tree.on("changeSelection", function(ev){
                 cursor = tree.selection.getCursor();
                 if (cursor && cursor.id) {
-                    if (inputSelected)
+                    if (!inputSelection) {
+                        inputSelection = txtGoToFile.ace.selection.toJSON();
                         txtGoToFile.ace.selectAll();
-                    inputSelected = false;
-                } else {
-                    inputSelected = true;
+                    }
+                } else if (inputSelection) {
+                    txtGoToFile.ace.selection.fromJSON(inputSelection);
+                    inputSelection = null;
                 }
             });
             
@@ -400,10 +402,11 @@ define(function(require, exports, module) {
                 }
             }
     
+            // prvent filter input from being selected
+            inputSelection = txtGoToFile.ace.selection.toJSON();
             // select the first item in the list
-            inputSelected = false;
             tree.select(tree.provider.getNodeAtIndex(first));
-            inputSelected = true;
+            inputSelection = null;
         }
 
         function openFile(noanim){
