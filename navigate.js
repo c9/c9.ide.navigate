@@ -176,23 +176,36 @@ define(function(require, exports, module) {
                     bindKey : "Enter",
                     exec    : function(){ openFile(true); }
                 },
-                tree.commands.centerselection,
-                tree.commands.goToStart,
-                tree.commands.goToEnd,
-                tree.commands.pageup,
-                tree.commands.gotopageup,
-                tree.commands.scrollup,
-                tree.commands.scrolldown,
-                tree.commands.goUp,
-                tree.commands.goDown,
-                tree.commands.selectUp,
-                tree.commands.selectDown,
-                tree.commands.selectMoreUp,
-                tree.commands.selectMoreDown
             ]);
+            function forwardToTree() {
+                this.exec_orig(tree);
+            }
+            txtGoToFile.ace.commands.addCommands([
+                "centerselection",
+                "goToStart",
+                "goToEnd",
+                "pageup",
+                "gotopageup",
+                "scrollup",
+                "scrolldown",
+                "goUp",
+                "goDown",
+                "selectUp",
+                "selectDown",
+                "selectMoreUp",
+                "selectMoreDown"
+            ].map(function(name) {
+                var command = tree.commands.byName[name];
+                return {
+                    name: command.name,
+                    bindKey: command.bindKey,
+                    exec_orig: command.exec,
+                    exec: forwardToTree
+                }
+            }));
             
             tree.on("click", function(ev){
-                var e = e.domEvent;
+                var e = ev.domEvent;
                 if (!e.shiftKey && !e.metaKey  && !e.optionKey  && !e.altKey)
                     openFile(true);
             });
@@ -255,40 +268,26 @@ define(function(require, exports, module) {
                 return;
             }
             
-            // @Harutyun, how do I get the selection, scrollTop?
             
-            // var sel = [];
-            // dgGoToFile.getSelection().forEach(function(node){
-            //     var i = node.firstChild.nodeValue;
-            //     sel.push(searchResults[i]);
-            // });
-            
+            var sel = [];
+            tree.selection.getSelectedNodes();
+
             var state = {
                 sel : sel, //store previous selection
-                caret : dgGoToFile.caret && searchResults[dgGoToFile.caret.firstChild.nodeValue],
-                scrollTop : app.navigate.tree.provider.getScrollTop()
+                scrollTop : tree.provider.getScrollTop()
             };
 
             if (lastSearch)
-                filter(lastSearch);//, state.sel.length);
+                filter(lastSearch, state.sel.length);
             else
                 ldSearch.updateData(arrayCache);
-
-            // @Harutyun, how do I set the selection, scrollTop?
             
-            // if (state.sel.length && state.sel.length < 100) {
-            //     var list = [];
-            //     sel = state.sel;
-            //     for (var i = 0, l = sel.length; i < l; i++) {
-            //         list.push(dgGoToFile.queryNode("//d:href[text()='"
-            //             + searchResults.indexOf(sel[i]) + "']"));
-            //     }
-            //     dgGoToFile.selectList(list);
-            //     if (state.caret)
-            //         dgGoToFile.setCaret(dgGoToFile.queryNode("//d:href[text()='"
-            //             + searchResults.indexOf(state.caret) + "']"));
-            //     dgGoToFile.$viewport.setScrollTop(state.scrollTop);
-            // }
+            if (state.sel.length) {
+                tree.selection.clear();
+                for (var i = 0, l = sel.length; i < l; i++) {
+                    tree.selection.add(sel[i]);
+                }
+            }
         }
     
         function markDirty(options){
@@ -355,8 +354,7 @@ define(function(require, exports, module) {
                 searchResults = result;
             }
             else {
-                // @Harutyun, how do I set the scroll position?
-                // dgGoToFile.$viewport.setScrollTop(0);
+                tree.provider.setScrollTop(0);
                 searchResults = search.fileSearch(arrayCache, keyword);
             }
     
@@ -398,6 +396,7 @@ define(function(require, exports, module) {
                 return false;
 
             var nodes = tree.selection.getSelectedNodes();
+            var cursor = tree.selection.getCursor();
     
             // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
@@ -407,12 +406,12 @@ define(function(require, exports, module) {
             
             var fn = function(){};
             for (var i = 0, l = nodes.length; i < l; i++) {
-                var path  = "/" + nodes[i].replace(/^[\/]+/, "");
+                var path  = "/" + nodes[i].id.replace(/^[\/]+/, "");
                 
                 tabs.open({
                     path   : path, 
                     noanim : l > 1,
-                    active : i == l - 1
+                    active : nodes[i].id === cursor.id
                 }, fn);
             }
             
