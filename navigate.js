@@ -479,15 +479,11 @@ define(function(require, exports, module) {
          * @member panels
          */
         plugin.freezePublicAPI({
-<<<<<<< HEAD
-            
-=======
-            get tree() { return tree; },
             /**
-             * 
+             * @property {Object}  The tree implementation
+             * @private
              */
-            show : show
->>>>>>> 7db14a66ec798d688148c213bb0028c2a7851354
+            get tree() { return tree; }
         });
         
         register(null, {
