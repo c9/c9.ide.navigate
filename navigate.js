@@ -211,6 +211,12 @@ define(function(require, exports, module) {
                     openFile(true);
             });
             
+            tree.on("changeSelection", function(ev){
+                cursor = tree.selection.getCursor();
+                if (cursor && cursor.id)
+                    txtGoToFile.ace.selectAll();
+            })
+            
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
                 filter(val);

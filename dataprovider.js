@@ -18,6 +18,8 @@ define(function(require, exports, module) {
     oop.inherits(ListData, Base);
     (function() {
         
+        this.getMinIndex = function() { return -1 };
+        
         this.updateData = function(array){
             this.visibleItems = array || [];
             
