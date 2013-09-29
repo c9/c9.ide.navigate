@@ -9,7 +9,8 @@
 .searchresults .item{
     background : transparent;
     color : #666;
-    padding : 3px 3px 5px 5px;
+    padding : 2px 3px 4px 5px;
+    margin : 1px 0px;
 }
 .searchresults .item {
     cursor : pointer;

@@ -56,7 +56,8 @@ define(function(require, exports, module) {
             });
             
             panels.on("afterAnimate", function(){
-                tree && tree.resize();
+                if (panels.isActive("navigate"))
+                    tree && tree.resize();
             })
             
             // Menus
@@ -162,20 +163,49 @@ define(function(require, exports, module) {
                     bindKey : "ESC",
                     exec    : function(){ plugin.hide(); }
                 }, {
-                    bindKey : "Up",
-                    exec    : function(){ tree.execCommand("goUp"); }
-                }, {
-                    bindKey : "Down",
-                    exec    : function(){ tree.execCommand("goDown"); }
-                }, {
                     bindKey : "Enter",
                     exec    : function(){ openFile(true); }
-                }
+                },
             ]);
+            function forwardToTree() {
+                this.exec_orig(tree);
+            }
+            txtGoToFile.ace.commands.addCommands([
+                "centerselection",
+                "goToStart",
+                "goToEnd",
+                "pageup",
+                "gotopageup",
+                "scrollup",
+                "scrolldown",
+                "goUp",
+                "goDown",
+                "selectUp",
+                "selectDown",
+                "selectMoreUp",
+                "selectMoreDown"
+            ].map(function(name) {
+                var command = tree.commands.byName[name];
+                return {
+                    name: command.name,
+                    bindKey: command.bindKey,
+                    exec_orig: command.exec,
+                    exec: forwardToTree
+                }
+            }));
             
-            tree.on("click", function(e){
-                openFile(true);
+            tree.on("click", function(ev){
+                var e = ev.domEvent;
+                if (!e.shiftKey && !e.metaKey  && !e.ctrlKey  && !e.altKey)
+                if (tree.selection.getSelectedNodes().length === 1)
+                    openFile(true);
             });
+            
+            tree.on("changeSelection", function(ev){
+                cursor = tree.selection.getCursor();
+                if (cursor && cursor.id)
+                    txtGoToFile.ace.selectAll();
+            })
             
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
@@ -186,12 +216,8 @@ define(function(require, exports, module) {
                     updateFileCache(true);
                 }
             });
-
-            // @Harutyun, the select event should be on the tree or the selection object
-            //      I just hacked it into the dataprovider for now, but that is very wrong.
-            // tree.getSelection().on("changeSelection", function(){ previewFile(); });
-            // tree.on("select", function(){ previewFile(); });
-            ldSearch.on("select", function(){ previewFile(); });
+            
+            tree.selection.on("changeSelection", function(){ previewFile(); });
     
             function onblur(e){
                 if (!winGoToFile.visible)
@@ -206,7 +232,8 @@ define(function(require, exports, module) {
                     return;
                 }
                 
-                plugin.hide();
+                // TODO add better support for overlay panels
+                setTimeout(function(){ plugin.hide() }, 10);
             }
     
             apf.addEventListener("movefocus", onblur);
@@ -236,40 +263,26 @@ define(function(require, exports, module) {
                 return;
             }
             
-            // @Harutyun, how do I get the selection, scrollTop?
             
-            // var sel = [];
-            // dgGoToFile.getSelection().forEach(function(node){
-            //     var i = node.firstChild.nodeValue;
-            //     sel.push(searchResults[i]);
-            // });
-            
-            // var state = {
-            //     sel : sel, //store previous selection
-            //     caret : dgGoToFile.caret && searchResults[dgGoToFile.caret.firstChild.nodeValue],
-            //     scrollTop : dgGoToFile.$viewport.getScrollTop()
-            // };
+            var sel = [];
+            tree.selection.getSelectedNodes();
+
+            var state = {
+                sel : sel, //store previous selection
+                scrollTop : tree.provider.getScrollTop()
+            };
 
             if (lastSearch)
-                filter(lastSearch);//, state.sel.length);
+                filter(lastSearch, state.sel.length);
             else
                 ldSearch.updateData(arrayCache);
-
-            // @Harutyun, how do I set the selection, scrollTop?
             
-            // if (state.sel.length && state.sel.length < 100) {
-            //     var list = [];
-            //     sel = state.sel;
-            //     for (var i = 0, l = sel.length; i < l; i++) {
-            //         list.push(dgGoToFile.queryNode("//d:href[text()='"
-            //             + searchResults.indexOf(sel[i]) + "']"));
-            //     }
-            //     dgGoToFile.selectList(list);
-            //     if (state.caret)
-            //         dgGoToFile.setCaret(dgGoToFile.queryNode("//d:href[text()='"
-            //             + searchResults.indexOf(state.caret) + "']"));
-            //     dgGoToFile.$viewport.setScrollTop(state.scrollTop);
-            // }
+            if (state.sel.length) {
+                tree.selection.clear();
+                for (var i = 0, l = sel.length; i < l; i++) {
+                    tree.selection.add(sel[i]);
+                }
+            }
         }
     
         function markDirty(options){
@@ -336,8 +349,7 @@ define(function(require, exports, module) {
                 searchResults = result;
             }
             else {
-                // @Harutyun, how do I set the scroll position?
-                // dgGoToFile.$viewport.setScrollTop(0);
+                tree.provider.setScrollTop(0);
                 searchResults = search.fileSearch(arrayCache, keyword);
             }
     
@@ -377,14 +389,9 @@ define(function(require, exports, module) {
         function openFile(noanim){
             if (!ldSearch.loaded)
                 return false;
-                
-            // @Harutyun, How do I get the selection (multiple)
-            // var nodes = dgGoToFile.getSelection();
-    
-            // Temporary
-            var nodes = [];
-            var row   = ldSearch.selectedRow;
-            nodes.push(ldSearch.visibleItems[row]);
+
+            var nodes = tree.selection.getSelectedNodes();
+            var cursor = tree.selection.getCursor();
     
             // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
@@ -394,12 +401,12 @@ define(function(require, exports, module) {
             
             var fn = function(){};
             for (var i = 0, l = nodes.length; i < l; i++) {
-                var path  = "/" + nodes[i].replace(/^[\/]+/, "");
+                var path  = "/" + nodes[i].id.replace(/^[\/]+/, "");
                 
                 tabs.open({
                     path   : path, 
                     noanim : l > 1,
-                    active : i == l - 1
+                    active : nodes[i].id === cursor.id
                 }, fn);
             }
             
@@ -413,8 +420,8 @@ define(function(require, exports, module) {
             if (!ldSearch.loaded)
                 return false;
             
-            var row   = ldSearch.selectedRow;
-            var value = ldSearch.visibleItems[row];
+            var node = tree.selection.getCursor();
+            var value = node && node.path;
             if (!value)
                 return;
                 
@@ -472,7 +479,15 @@ define(function(require, exports, module) {
          * @member panels
          */
         plugin.freezePublicAPI({
+<<<<<<< HEAD
             
+=======
+            get tree() { return tree; },
+            /**
+             * 
+             */
+            show : show
+>>>>>>> 7db14a66ec798d688148c213bb0028c2a7851354
         });
         
         register(null, {
