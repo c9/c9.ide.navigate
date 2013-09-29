@@ -42,6 +42,7 @@ define(function(require, exports, module) {
         
         var dirty         = true;
         var arrayCache    = [];
+        var inputSelection;
         var timer;
         
         var loaded = false;
@@ -203,9 +204,18 @@ define(function(require, exports, module) {
             
             tree.on("changeSelection", function(ev){
                 cursor = tree.selection.getCursor();
-                if (cursor && cursor.id)
-                    txtGoToFile.ace.selectAll();
-            })
+                if (cursor && cursor.id) {
+                    if (!inputSelection) {
+                        inputSelection = txtGoToFile.ace.selection.toJSON();
+                        txtGoToFile.ace.selectAll();
+                    }
+                } else if (inputSelection) {
+                    txtGoToFile.ace.selection.fromJSON(inputSelection);
+                    inputSelection = null;
+                }
+            });
+            
+            tree.selection.$wrapAround = true;
             
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
@@ -371,19 +381,20 @@ define(function(require, exports, module) {
             
             // loop over all visible items. If we find a visible item
             // that is in the `hash`, select it and return.
-            var first = tree.renderer.getFirstVisibleRow();
-            var last = tree.renderer.getLastVisibleRow();
-            for (var i = first; i < last; i++) {
+            var first = keyword ? 0 : -1;
+            var last = tree.renderer.$size.height / tree.provider.rowHeight;
+            for (var i = 0; i < last; i++) {
                 if (hash[ldSearch.visibleItems[i]]) {
-                    tree.select(i);
-                    return;
+                    first = i;
+                    break;
                 }
             }
     
+            // prvent filter input from being selected
+            inputSelection = txtGoToFile.ace.selection.toJSON();
             // select the first item in the list
-            if (keyword) {
-                tree.select(0);
-            }
+            tree.select(tree.provider.getNodeAtIndex(first));
+            inputSelection = null;
         }
 
         function openFile(noanim){
