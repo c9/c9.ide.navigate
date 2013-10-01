@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
-        "panels", "fs.cache.xml", "preferences", "c9", "tree"
+        "panels", "fs.cache", "preferences", "c9", "tree"
     ];
     main.provides = ["navigate"];
     return main;
@@ -12,7 +12,7 @@ define(function(require, exports, module) {
         var ui       = imports.ui;
         var c9       = imports.c9;
         var fs       = imports.fs;
-        var fsCache  = imports["fs.cache.xml"];
+        var fsCache  = imports["fs.cache"];
         var tabs     = imports.tabManager;
         var menus    = imports.menus;
         var watcher  = imports.watcher;
