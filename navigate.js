@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var search   = require('./search');
         var Tree     = require("ace_tree/tree");
         var ListData = require("./dataprovider");
+        var basename = require("path").basename;
         
         /***** Initialization *****/
         
@@ -358,7 +359,7 @@ define(function(require, exports, module) {
                 for (var i = openTabs.length - 1; i >= 0; i--) {
                     var tab = openTabs[i];
                     if (!tab.document.meta.preview && tab.path) {
-                        if (fs.getFilename(tab.path).indexOf(keyword) == 0)
+                        if (basename(tab.path).indexOf(keyword) == 0)
                             hash[tab.path] = true;
                     }
                 }
