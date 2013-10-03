@@ -36,7 +36,7 @@ define(function(require, exports, module) {
             minWidth     : 130,
             autohide     : true
         });
-        var emit   = plugin.getEmitter();
+        // var emit   = plugin.getEmitter();
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
         var lastSearch, lastPreviewed;
@@ -246,8 +246,12 @@ define(function(require, exports, module) {
         /***** Methods *****/
         
         function reloadResults(){
-            if (!winGoToFile)
+            if (!winGoToFile) {
+                plugin.once("draw", function(){
+                    reloadResults();
+                });
                 return;
+            }
             
             // Wait until window is visible
             if (!winGoToFile.visible) {
@@ -260,13 +264,7 @@ define(function(require, exports, module) {
                 return;
             }
             
-            
             var sel = tree.selection.getSelectedNodes();
-
-            var state = {
-                scrollTop : tree.provider.getScrollTop()
-            };
-
             if (lastSearch) {
                 filter(lastSearch, sel.length);
             } else {
