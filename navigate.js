@@ -169,7 +169,7 @@ define(function(require, exports, module) {
                 },
             ]);
             function forwardToTree() {
-                this.exec_orig(tree);
+                tree.execCommand(this.name);
             }
             txtGoToFile.ace.commands.addCommands([
                 "centerselection",
@@ -189,8 +189,7 @@ define(function(require, exports, module) {
                 var command = tree.commands.byName[name];
                 return {
                     name: command.name,
-                    bindKey: command.bindKey,
-                    exec_orig: command.exec,
+                    bindKey: command.editorKey || command.bindKey,
                     exec: forwardToTree
                 }
             }));
