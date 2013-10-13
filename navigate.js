@@ -235,7 +235,9 @@ define(function(require, exports, module) {
             apf.addEventListener("movefocus", onblur);
     
             // Focus the input field
-            txtGoToFile.focus();
+            setTimeout(function(){
+                txtGoToFile.focus();
+            }, 10);
             
             // Offline
             c9.on("stateChange", offlineHandler, plugin);

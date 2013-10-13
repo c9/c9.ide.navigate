@@ -1,5 +1,5 @@
 <a:application xmlns:a="http://ajax.org/2005/aml">
-    <a:bar id="winGoToFile" skin="panel-bar">
+    <a:bar id="winGoToFile" skin="panel-bar" visible="false">
         <a:codebox id="txtGoToFile" realtime="true" skin="codebox" clearbutton="true"
           focusselect="true" height="27" left="10" top="10" right="10" />
         <a:bar id="navigateList" top="47" right="10" left="10" bottom="0" class="searchresults" />
