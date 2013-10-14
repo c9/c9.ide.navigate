@@ -440,8 +440,6 @@ define(function(require, exports, module) {
             txtGoToFile.select();
         });
         plugin.on("hide", function(e){
-            tree && tree.selection.selectNode(null);
-            
             // Cancel Preview
             tabs.preview({ cancel: true });
         });
