@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", "fs", 
-        "panels", "fs.cache", "preferences", "c9", "tree"
+        "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", 
+        "fs", "panels", "fs.cache", "preferences", "c9", "tree"
     ];
     main.provides = ["navigate"];
     return main;
