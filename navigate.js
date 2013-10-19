@@ -59,7 +59,7 @@ define(function(require, exports, module) {
             panels.on("afterAnimate", function(){
                 if (panels.isActive("navigate"))
                     tree && tree.resize();
-            })
+            });
             
             // Menus
             var mnuItem = new apf.item({ command : "navigate" });
