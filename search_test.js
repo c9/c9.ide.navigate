@@ -1,5 +1,6 @@
 /*global describe it before*/
 "use strict";
+"use mocha";
 
 if (typeof process !== "undefined")
     require("amd-loader");
