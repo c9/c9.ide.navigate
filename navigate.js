@@ -30,11 +30,12 @@ define(function(require, exports, module) {
         /***** Initialization *****/
         
         var plugin = new Panel("Ajax.org", main.consumes, {
-            index        : 200,
+            index        : options.index || 200,
             caption      : "Navigate",
             elementName  : "winGoToFile",
             minWidth     : 130,
-            autohide     : true
+            autohide     : true,
+            where        : options.where || "left"
         });
         // var emit   = plugin.getEmitter();
         
