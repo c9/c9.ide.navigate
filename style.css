@@ -8,7 +8,7 @@
 
 .searchresults .item{
     background : transparent;
-    color : #666;
+    color : @color;
     padding : 2px 3px 4px 5px;
     margin : 1px 0px;
 }
@@ -16,11 +16,9 @@
     cursor : pointer;
     border-radius : 3px;
 }
-.searchresults .item{
-    color : #f1f1f1;
-}
 .searchresults .item:not(.selected):hover{
-    background: #252525;
+    background: @selected-hover-background;
+    color: @selected-hover-color;
 }
 .searchresults .item>span{
     font-size : 12px;
@@ -37,13 +35,13 @@
     -moz-osx-font-smoothing: grayscale;
 }
 .searchresults .item.selected{
-    background: #748512;
+    background: @selected-focus-background;
 }
 .searchresults .item.selected:hover{
 }
 
 .searchresults .item.selected span{
-    color : #f1f1f1;
+    color : @selected-focus-color;
 }
 .searchresults .message{
     border : 0;
@@ -55,10 +53,10 @@
 }
 
 .searchresults .item span strong {
-    color: #bacf41;
+    color: @highlight-color;
 }
 
 .searchresults .item.selected span strong {
-    color: #f1f1f1;
+    color: @highlight-selected-color;
     font-weight : bold;
 }
