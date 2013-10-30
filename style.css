@@ -49,7 +49,7 @@
     text-align : center;
     background : transparent !important;
     font-size: 11px;
-    color : white;
+    color : @empty-message-color;
 }
 
 .searchresults .item span strong {
