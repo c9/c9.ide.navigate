@@ -1,5 +1,6 @@
 /*global describe it before*/
 
+"use server";
 "use mocha";
 
 if (typeof process !== "undefined")
