@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", 
-        "fs", "panels", "fs.cache", "preferences", "c9", "tree"
+        "fs", "panels", "fs.cache", "preferences", "c9", "tree", "commands"
     ];
     main.provides = ["navigate"];
     return main;
@@ -20,6 +20,7 @@ define(function(require, exports, module) {
         var find     = imports.find;
         var filetree = imports.tree;
         var prefs    = imports.preferences;
+        var commands = imports.commands;
         
         var markup   = require("text!./navigate.xml");
         var search   = require('./search');
@@ -51,11 +52,24 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
-            plugin.setCommand({
+            var command = plugin.setCommand({
                 name    : "navigate",
                 hint    : "search for a filename, line or symbol and jump to it",
                 bindKey : { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" }
             });
+            
+            commands.addCommand({
+                name    : "navigate_altkey",
+                hint    : "search for a filename, line or symbol and jump to it",
+                bindKey : {
+                    mac: "Command-O", 
+                    win: "Ctrl-O"
+                },
+                group : "Panels",
+                exec  : function() {
+                    command.exec();
+                }
+            }, plugin);
             
             panels.on("afterAnimate", function(){
                 if (panels.isActive("navigate"))
