@@ -314,6 +314,17 @@ define(function(require, exports, module) {
                     return;
 
                 arrayCache = data.trim().split("\n");
+                
+                // Test for double results from server:
+                var found = {};
+                arrayCache.forEach(function(x){ 
+                    if (found[x]) {
+                        alert("Found duplicate navigate result");
+                        debugger;
+                    }
+                    found[x] = true;
+                });
+                
                 reloadResults();
             });
             
