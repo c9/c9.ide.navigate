@@ -228,7 +228,7 @@ define(function(require, exports, module) {
                 }
             });
             
-            tree.selection.on("changeSelection", function(){ previewFile(); });
+            tree.selection.on("change", function(){ previewFile(); });
     
             function onblur(e){
                 if (!winGoToFile.visible)
@@ -439,7 +439,7 @@ define(function(require, exports, module) {
                 return false;
             
             var node = tree.selection.getCursor();
-            var value = node && node.path;
+            var value = node && node.id;
             if (!value)
                 return;
                 
