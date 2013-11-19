@@ -301,9 +301,12 @@ define(function(require, exports, module) {
             }
         }
     
+        var updating = false;
         function updateFileCache(isDirty){
             clearTimeout(timer);
-            
+            if (updating)
+                return;
+            updating = true;
             find.getFileList({
                 path    : "/",
                 nocache : isDirty,
@@ -315,16 +318,7 @@ define(function(require, exports, module) {
 
                 arrayCache = data.trim().split("\n");
                 
-                // Test for double results from server:
-                var found = {};
-                arrayCache.forEach(function(x){ 
-                    if (found[x]) {
-                        alert("Found duplicate navigate result");
-                        debugger;
-                    }
-                    found[x] = true;
-                });
-                
+                updating = false;
                 reloadResults();
             });
             
