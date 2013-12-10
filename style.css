@@ -16,7 +16,8 @@
     cursor : pointer;
     border-radius : 3px;
 }
-.searchresults .item:not(.selected):hover{
+.searchresults .item:not(.selected):hover,
+.searchresults .item:not(.selected).hover{
     background: @selected-hover-background;
     color: @selected-hover-color;
 }
@@ -37,7 +38,8 @@
 .searchresults .item.selected{
     background: @selected-focus-background;
 }
-.searchresults .item.selected:hover{
+.searchresults .item.selected:hover,
+.searchresults .item.selected.hover{
 }
 
 .searchresults .item.selected span{

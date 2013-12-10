@@ -7,6 +7,7 @@ define(function(require, exports, module) {
     var ListData = function(array) {
         Base.call(this);
         
+        this.classes = {};
         // todo compute these automatically
         this.innerRowHeight = 34;
         this.rowHeight = 42;
@@ -60,12 +61,26 @@ define(function(require, exports, module) {
             var isSelected = this.isSelected(row);
             var filename = path.substr(path.lastIndexOf("/") + 1);
             html.push("<div class='item " + (isSelected ? "selected" : "") 
+                + this.getClassName(row)
                 + "' style='height:" + this.innerRowHeight + "px'><span>"
                 + this.replaceStrong(filename)
                 + "</span><span class='path'>"
                 + this.replaceStrong(path)
                 + "</span></div>");
         };
+        
+        this.getClassName = function(row) {
+            return this.classes[row] || "";
+        };
+        
+        this.setClass = function(node, className, include) {
+            if (include)
+                this.classes[node.index] = className;
+            else
+                delete this.classes[node.index];
+            this._signal("changeClass");
+        };
+        
     }).call(ListData.prototype);
     
     return ListData;
