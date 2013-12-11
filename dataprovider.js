@@ -60,7 +60,7 @@ define(function(require, exports, module) {
             var path = this.visibleItems[row];
             var isSelected = this.isSelected(row);
             var filename = path.substr(path.lastIndexOf("/") + 1);
-            html.push("<div class='item " + (isSelected ? "selected" : "") 
+            html.push("<div class='item " + (isSelected ? "selected " : "") 
                 + this.getClassName(row)
                 + "' style='height:" + this.innerRowHeight + "px'><span>"
                 + this.replaceStrong(filename)
