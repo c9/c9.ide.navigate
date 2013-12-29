@@ -25,15 +25,13 @@
     font-size : 12px;
     display : block;
     padding : 2px 2px 0 2px;
-    -webkit-font-smoothing: auto;
-    -moz-osx-font-smoothing: auto;
+    font-weight : bold;
 }
 .searchresults .item .path {
     font-size: 10px;
     word-wrap: break-word;
     line-height : 14px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-weight : normal;
 }
 .searchresults .item.selected{
     background: @selected-focus-background;

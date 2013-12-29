@@ -157,7 +157,6 @@ define(function(require, exports, module) {
             var treeParent   = plugin.getElement("navigateList");
             txtGoToFile      = plugin.getElement("txtGoToFile");
             winGoToFile      = plugin.getElement("winGoToFile");
-            txtGoToFile      = plugin.getElement("txtGoToFile");
 
             // Create the Ace Tree
             tree      = new Tree(treeParent.$int);
