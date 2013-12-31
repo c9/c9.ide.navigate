@@ -334,6 +334,7 @@ define(function(require, exports, module) {
          * Searches through the dataset
          *
          */
+        var lastResults;
         function filter(keyword, nosel){
             keyword = keyword.replace(/\*/g, "");
     
@@ -363,10 +364,19 @@ define(function(require, exports, module) {
             }
             else {
                 tree.provider.setScrollTop(0);
-                searchResults = search.fileSearch(arrayCache, keyword);
+                
+                var base;
+                if (lastSearch)
+                    base = keyword.substr(0, lastSearch.length) == lastSearch
+                        ? lastResults : arrayCache;
+                else
+                    base = arrayCache;
+                
+                searchResults = search.fileSearch(base, keyword);
             }
     
-            lastSearch = keyword;
+            lastSearch  = keyword;
+            lastResults = searchResults.newlist;
     
             if (searchResults)
                 ldSearch.updateData(searchResults);

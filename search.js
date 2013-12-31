@@ -22,7 +22,8 @@ module.exports.fileSearch = function(filelist, keyword) {
     
     var name, value, ext;
     // var res = klen < 3 ? [] : new Heap();
-    var res = new Heap();
+    var res     = new Heap();
+    var newlist = [];
     
     for (var i = 0, l = filelist.length, s, j, k, q, p, m, n; i < l; i++) {
         name  = filelist[i];
@@ -35,6 +36,7 @@ module.exports.fileSearch = function(filelist, keyword) {
         //         continue;
 
         if (value > 0) {
+            newlist.push(name);
             if (res.size() === 100 && value > res.min().value)
                 res.pop();
             if (res.size() < 100)
@@ -52,7 +54,9 @@ module.exports.fileSearch = function(filelist, keyword) {
     var ret = [];
     while (res.size())
         ret.unshift(res.pop().name);
-
+    
+    ret.newlist = newlist;
+    
     return ret;
 };
 
