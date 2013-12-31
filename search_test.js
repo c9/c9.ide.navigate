@@ -24,8 +24,14 @@ define(function(require, exports, module) {
                 "/blah/code/me.jpg" //included but no prio
             ];
     
-            assert.deepEqual(search.fileSearch(fileList, "code"), ["/etc/code", "/etc/code.xml", "/etc/code_test.xml", "/blah/code/me.jpg", "/blah/code/others.png"]);
-            assert.deepEqual(search.fileSearch(fileList, "etc.xml"), ["/etc/code.xml", "/etc/code_test.xml"]);
+            var search1 = search.fileSearch(fileList, "code");
+            var search2 = search.fileSearch(fileList, "etc.xml");
+    
+            delete search1.newlist;
+            delete search2.newlist;
+            
+            assert.deepEqual(search1, [ '/blah/code/me.jpg', '/blah/code/others.png', '/etc/code', '/etc/code.xml', '/etc/code_test.xml']);
+            assert.deepEqual(search2, ["/etc/code.xml", "/etc/code_test.xml"]);
             next();
         });
     
