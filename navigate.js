@@ -38,7 +38,7 @@ define(function(require, exports, module) {
             autohide     : true,
             where        : options.where || "left"
         });
-        // var emit   = plugin.getEmitter();
+        var emit   = plugin.getEmitter();
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
         var lastSearch, lastPreviewed;
@@ -223,30 +223,57 @@ define(function(require, exports, module) {
             
             tree.selection.$wrapAround = true;
             
+            var intoOutline;
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
-                var parts;
+                var parts, tab;
                 
-                // if (~val.indexOf("@")) {
-                    
-                // }
-                // else 
-                if (~val.indexOf(":")) {
-                    parts = val.split(":");
+                if (~val.indexOf("@")) {
+                    parts = val.split("@");
                     if (parts[0]) {
-                        filter(parts[0]);
+                        if (lastSearch != parts[0])
+                            filter(parts[0]);
                         previewFile(true);
-                        if (lastPreviewed && parts[1])
-                            lastPreviewed.editor.ace.gotoLine(parts[1]);
+                        tab = lastPreviewed || tabs.focussedTab;
+                        if (tab) {
+                            emit("outline", { value: parts[1], tab: tab });
+                            intoOutline = true;
+                        }
                     }
                     else {
-                        var tab = tabs.focussedTab;
-                        if (tab && parts[1])
-                            tab.editor.ace.gotoLine(parts[1]);
+                        tab = tabs.focussedTab;
+                        if (tab) {
+                            emit("outline", { value: parts[1], tab: tab });
+                            intoOutline = true;
+                        }
                     }
                 }
                 else {
-                    filter(val);
+                    if (intoOutline) {
+                        emit("outline.stop");
+                        tree.setDataProvider(ldSearch);
+                        intoOutline = false;
+                    }
+                    
+                    if (~val.indexOf(":")) {
+                        parts = val.split(":");
+                        if (parts[0]) {
+                            if (lastSearch != parts[0])
+                                filter(parts[0]);
+                            previewFile(true);
+                            tab = lastPreviewed || tabs.focussedTab;
+                            if (tab && parts[1])
+                                tab.editor.ace.gotoLine(parts[1]);
+                        }
+                        else {
+                            tab = tabs.focussedTab;
+                            if (tab && parts[1])
+                                tab.editor.ace.gotoLine(parts[1]);
+                        }
+                    }
+                    else {
+                        filter(val);
+                    }
                 }
     
                 if (dirty && val.length > 0 && ldSearch.loaded) {
@@ -463,7 +490,8 @@ define(function(require, exports, module) {
         }
         
         function previewFile(force){
-            if (!settings.getBool("user/general/@preview-navigate") && !force)
+            if ((!lastPreviewed || !lastPreviewed.loaded)
+              && !settings.getBool("user/general/@preview-navigate") && !force)
                 return;
             
             if (!ldSearch.loaded)
