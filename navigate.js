@@ -185,7 +185,7 @@ define(function(require, exports, module) {
                     exec    : function(){ openFile(false, true); }
                 }, {
                     bindKey : "Shift-Space",
-                    exec    : function(){ previewFile(false, true); }
+                    exec    : function(){ previewFile(true); }
                 },
             ]);
             function forwardToTree() {
@@ -225,7 +225,29 @@ define(function(require, exports, module) {
             
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
-                filter(val);
+                var parts;
+                
+                // if (~val.indexOf("@")) {
+                    
+                // }
+                // else 
+                if (~val.indexOf(":")) {
+                    parts = val.split(":");
+                    if (parts[0]) {
+                        filter(parts[0]);
+                        previewFile(true);
+                        if (lastPreviewed && parts[1])
+                            lastPreviewed.editor.ace.gotoLine(parts[1]);
+                    }
+                    else {
+                        var tab = tabs.focussedTab;
+                        if (tab && parts[1])
+                            tab.editor.ace.gotoLine(parts[1]);
+                    }
+                }
+                else {
+                    filter(val);
+                }
     
                 if (dirty && val.length > 0 && ldSearch.loaded) {
                     dirty = false;
@@ -440,7 +462,7 @@ define(function(require, exports, module) {
             lastPreviewed = null;
         }
         
-        function previewFile(noanim, force){
+        function previewFile(force){
             if (!settings.getBool("user/general/@preview-navigate") && !force)
                 return;
             
