@@ -498,12 +498,15 @@ define(function(require, exports, module) {
             
             var fn = function(){};
             for (var i = 0, l = nodes.length; i < l; i++) {
-                var path  = "/" + nodes[i].id.replace(/^[\/]+/, "");
+                var id = nodes[i].id;
+                if (!id) continue;
+                var path  = "/" + id.replace(/^[\/]+/, "");
                 
+                var focus = id === cursor.id;
                 tabs.open({
                     path   : path, 
                     noanim : l > 1,
-                    active : nodes[i].id === cursor.id
+                    focus : focus && (nohide ? "soft" : true)
                 }, fn);
             }
             
