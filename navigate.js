@@ -211,7 +211,7 @@ define(function(require, exports, module) {
                     name: command.name,
                     bindKey: command.editorKey || command.bindKey,
                     exec: forwardToTree
-                };
+                }
             }));
             
             tree.on("click", function(ev){
@@ -435,14 +435,14 @@ define(function(require, exports, module) {
     
             var first = -1;
             if (keyword) {
-                first = 0;
+                first = 0
                 // See if there are open files that match the search results
                 // and the first if in the displayed results
                 var openTabs = tabs.getTabs(), hash = {};
                 for (var i = openTabs.length - 1; i >= 0; i--) {
                     var tab = openTabs[i];
                     if (!tab.document.meta.preview && tab.path) {
-                        if (basename(tab.path).indexOf(keyword) === 0)
+                        if (basename(tab.path).indexOf(keyword) == 0)
                             hash[tab.path] = true;
                     }
                 }
@@ -462,7 +462,7 @@ define(function(require, exports, module) {
             tree.select(tree.provider.getNodeAtIndex(first));
         }
 
-        function openFile(noanim, nohide){
+        function openFile(noanim){
             if (!ldSearch.loaded)
                 return false;
 
@@ -471,9 +471,9 @@ define(function(require, exports, module) {
     
             // Cancel Preview and Keep the tab if there's only one
             if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
-                return nohide || plugin.hide();
+                return plugin.hide();
             
-            nohide || plugin.hide();
+            plugin.hide();
             
             var fn = function(){};
             for (var i = 0, l = nodes.length; i < l; i++) {
