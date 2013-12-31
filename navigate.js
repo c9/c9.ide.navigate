@@ -41,7 +41,7 @@ define(function(require, exports, module) {
         var emit   = plugin.getEmitter();
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
-        var lastSearch, lastPreviewed;
+        var lastSearch, lastPreviewed, cleaning, intoOutline;
         
         var dirty         = true;
         var arrayCache    = [];
@@ -223,10 +223,14 @@ define(function(require, exports, module) {
             
             tree.selection.$wrapAround = true;
             
-            var intoOutline;
             txtGoToFile.ace.on("input", function(e) {
                 var val = txtGoToFile.getValue();
                 var parts, tab;
+                
+                if (cleaning) {
+                    cleaning = false;
+                    return;
+                }
                 
                 if (~val.indexOf("@")) {
                     parts = val.split("@");
@@ -249,11 +253,8 @@ define(function(require, exports, module) {
                     }
                 }
                 else {
-                    if (intoOutline) {
-                        emit("outline.stop");
-                        tree.setDataProvider(ldSearch);
-                        intoOutline = false;
-                    }
+                    if (intoOutline)
+                        stopOutline();
                     
                     if (~val.indexOf(":")) {
                         parts = val.split(":");
@@ -282,7 +283,10 @@ define(function(require, exports, module) {
                 }
             });
             
-            tree.selection.on("change", function(){ previewFile(); });
+            tree.selection.on("change", function(){
+                cleanInput();
+                previewFile(); 
+            });
     
             function onblur(e){
                 if (!winGoToFile.visible)
@@ -379,6 +383,22 @@ define(function(require, exports, module) {
             dirty = false;
         }
         
+        function stopOutline(){
+            if (!intoOutline) return;
+            
+            emit("outline.stop");
+            tree.setDataProvider(ldSearch);
+            intoOutline = false;
+        }
+        
+        function cleanInput(){
+            var value = txtGoToFile.getValue();
+            if (value.match(/[:\@]/)) {
+                cleaning = true;
+                txtGoToFile.setValue(value.split(":")[0].split("@")[0]);
+            }
+        }
+        
         /**
          * Searches through the dataset
          *
@@ -470,7 +490,8 @@ define(function(require, exports, module) {
             var cursor = tree.selection.getCursor();
     
             // Cancel Preview and Keep the tab if there's only one
-            if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true)
+            if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true 
+              || intoOutline)
                 return nohide || plugin.hide();
             
             nohide || plugin.hide();
@@ -521,12 +542,15 @@ define(function(require, exports, module) {
             
         });
         plugin.on("show", function(e){
+            cleanInput();
             txtGoToFile.focus();
             txtGoToFile.select();
         });
         plugin.on("hide", function(e){
             // Cancel Preview
             tabs.preview({ cancel: true });
+            // Stop Outline if there
+            stopOutline();
         });
         plugin.on("unload", function(){
             loaded = false;
