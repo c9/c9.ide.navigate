@@ -79,7 +79,7 @@ define(function(require, exports, module) {
             // Menus
             var mnuItem = new apf.item({ command : "navigate" });
             menus.addItemByPath("File/Open...", mnuItem, 500, plugin);
-            menus.addItemByPath("Goto/Goto File...", mnuItem.cloneNode(false), 100, plugin);
+            menus.addItemByPath("Goto/Goto Anything...", mnuItem.cloneNode(false), 100, plugin);
     
             // Settings
             settings.on("read", function(){
