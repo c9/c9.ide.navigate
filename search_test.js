@@ -30,7 +30,7 @@ define(function(require, exports, module) {
             delete search1.newlist;
             delete search2.newlist;
             
-            assert.deepEqual(search1, [ '/blah/code/me.jpg', '/blah/code/others.png', '/etc/code', '/etc/code.xml', '/etc/code_test.xml']);
+            assert.deepEqual(search1, ["/etc/code", "/etc/code.xml", "/etc/code_test.xml", "/blah/code/me.jpg", "/blah/code/others.png"]);
             assert.deepEqual(search2, ["/etc/code.xml", "/etc/code_test.xml"]);
             next();
         });
