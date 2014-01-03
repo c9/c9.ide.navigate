@@ -372,7 +372,7 @@ define(function(require, exports, module) {
                 buffer  : true
             }, function(err, data){
                 if (err)
-                    return;
+                    return console.error(err);
 
                 arrayCache = data.trim().split("\n");
                 
