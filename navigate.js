@@ -264,12 +264,12 @@ define(function(require, exports, module) {
                             previewFile(true);
                             tab = lastPreviewed || tabs.focussedTab;
                             if (tab && parts[1])
-                                tab.editor.ace.gotoLine(parts[1]);
+                                tab.editor.ace.gotoLine(parts[1], parts[2]);
                         }
                         else {
                             tab = tabs.focussedTab;
                             if (tab && parts[1])
-                                tab.editor.ace.gotoLine(parts[1]);
+                                tab.editor.ace.gotoLine(parts[1], parts[2]);
                         }
                     }
                     else {
