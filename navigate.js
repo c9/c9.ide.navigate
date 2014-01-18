@@ -362,8 +362,9 @@ define(function(require, exports, module) {
         var updating = false;
         function updateFileCache(isDirty){
             clearTimeout(timer);
-            if (updating)
+            if (updating || true)
                 return;
+                
             updating = true;
             find.getFileList({
                 path    : "/",
