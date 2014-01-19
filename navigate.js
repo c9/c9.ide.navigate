@@ -100,27 +100,47 @@ define(function(require, exports, module) {
             }, plugin);
     
             // Update when the fs changes
-            fs.on("afterWriteFile", function(e){
+            var quickUpdate = markDirty.bind(null, null, 2000);
+            
+            var newfile = function(e){
                 // Only mark dirty if file didn't exist yet
                 if (arrayCache.indexOf(e.path) == -1)
-                    markDirty(e);
+                    arrayCache.push(e.path);
+            };
+            fs.on("afterWriteFile", newfile);
+            fs.on("afterSymlink", newfile);
+            var rmfile = function(e){
+                var idx = arrayCache.indexOf(e.path);
+                if (~idx) arrayCache.splice(idx, 1);
+            };
+            fs.on("afterUnlink", rmfile);
+            fs.on("afterRmfile", rmfile);
+            var rmdir = function(e){
+                var path = e.path;
+                var len  = path.length;
+                for (var i = arrayCache.length - 1; i >= 0; i--) {
+                    if (arrayCache[i].substr(0, len) == path)
+                        arrayCache.splice(i, 1);
+                }
+            };
+            fs.on("afterRmdir", rmdir);
+            fs.on("afterCopy", quickUpdate);
+            fs.on("afterMkdir", quickUpdate);
+            fs.on("afterMkdirP", quickUpdate);
+            fs.on("afterRename", function(e){
+                rmfile(e);
+                newfile({ path: e.args[1] });
             });
-            fs.on("afterUnlink",    markDirty);
-            fs.on("afterRmfile",    markDirty);
-            fs.on("afterRmdir",     markDirty);
-            fs.on("afterCopy",      markDirty);
-            fs.on("afterRename",    markDirty);
-            fs.on("afterSymlink",   markDirty);
             
             // Or when a watcher fires
-            watcher.on("delete",     markDirty);
-            watcher.on("directory",  markDirty);
+            watcher.on("delete", quickUpdate);
+            watcher.on("directory", quickUpdate);
             
             // Or when the user refreshes the tree
             filetree.on("refresh", markDirty); 
             
             // Or when we change the visibility of hidden files
-            fsCache.on("setShowHidden", markDirty);
+            fsCache.on("setShowHidden", quickUpdate);
             
             // Pre-load file list
             updateFileCache();
@@ -346,7 +366,7 @@ define(function(require, exports, module) {
             }
         }
     
-        function markDirty(options){
+        function markDirty(options, timeout){
             // Ignore hidden files
             var path = options && options.path || "";
             if (path && !fsCache.showHidden && path.charAt(0) == ".")
@@ -355,7 +375,7 @@ define(function(require, exports, module) {
             dirty = true;
             if (panels.isActive("navigate")) {
                 clearTimeout(timer);
-                timer = setTimeout(function(){ updateFileCache(true); }, 2000);
+                timer = setTimeout(function(){ updateFileCache(true); }, timeout || 60000);
             }
         }
     
@@ -549,12 +569,16 @@ define(function(require, exports, module) {
             cleanInput();
             txtGoToFile.focus();
             txtGoToFile.select();
+            if (dirty)
+                updateFileCache(true);
         });
         plugin.on("hide", function(e){
             // Cancel Preview
             tabs.preview({ cancel: true });
             // Stop Outline if there
             stopOutline();
+            // Prevent files from being refreshed
+            clearTimeout(timer);
         });
         plugin.on("unload", function(){
             loaded = false;
