@@ -29,6 +29,7 @@ var fileTypes = {
  */
 module.exports.fileSearch = function(filelist, keyword) {
     var klen = keyword.length;
+    var keywordLower = keyword.toLowerCase();
 
     /**
      * FULL MATCHES                              >= 50
@@ -63,14 +64,14 @@ module.exports.fileSearch = function(filelist, keyword) {
 
         // We only add items that have the keyword in it's path
         value = 0;
-        if ((j = name.lastIndexOf(keyword)) > -1) {
+        if ((j = name.lastIndexOf(keywordLower)) > -1) {
             if (big) {
                 res.push(displayName);
                 continue;
             }
             // We prioritize ones that have the name in the filename
             if (j > (q = name.lastIndexOf("/"))) {
-                k = name.lastIndexOf("/" + keyword);
+                k = name.lastIndexOf("/" + keywordLower);
                 if (k > -1) {
                     // We give first prio to full filename matches
                     if (name.length == klen + 1 + k)
@@ -101,7 +102,7 @@ module.exports.fileSearch = function(filelist, keyword) {
             if (big || name.split("/").length > 5)
                 continue;
             var result;
-            result = matchPath(name, keyword);
+            result = matchPath(name, keywordLower);
             if (!result.length || result.length > 10)
                 continue;
             var matched = name.substring(result[0].val.length);
