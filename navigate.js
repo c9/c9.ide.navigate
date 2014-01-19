@@ -362,7 +362,7 @@ define(function(require, exports, module) {
         var updating = false;
         function updateFileCache(isDirty){
             clearTimeout(timer);
-            if (updating || true)
+            if (updating)
                 return;
                 
             updating = true;
