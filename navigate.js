@@ -396,9 +396,9 @@ define(function(require, exports, module) {
                 buffer  : true
             }, function(err, data){
                 if (err)
-                    return console.error(err);
-
-                arrayCache = data.trim().split("\n");
+                    console.error(err);
+                else
+                    arrayCache = data.trim().split("\n");
                 
                 ldSearch && (ldSearch.loading = false);
                 updating = false;
