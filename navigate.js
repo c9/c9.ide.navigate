@@ -611,7 +611,12 @@ define(function(require, exports, module) {
              * @property {Object}  The tree implementation
              * @private
              */
-            get tree() { return tree; }
+            get tree() { return tree; },
+            
+            /**
+             * 
+             */
+            markDirty: markDirty
         });
         
         register(null, {
