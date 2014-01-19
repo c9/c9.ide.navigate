@@ -28,7 +28,9 @@ define(function(require, exports, module) {
         
         this.getEmptyMessage = function(){
             if (!this.keyword)
-                return "Loading file list. One moment please...";
+                return this.loading
+                    ? "Loading file list. One moment please..."
+                    : "No files found.";
             else
                 return "No files found that match '" + this.keyword + "'";
         };

@@ -43,8 +43,9 @@ define(function(require, exports, module) {
         var winGoToFile, txtGoToFile, tree, ldSearch;
         var lastSearch, lastPreviewed, cleaning, intoOutline;
         
-        var dirty         = true;
-        var arrayCache    = [];
+        var dirty          = true;
+        var arrayCache     = [];
+        var loadListAtInit = options.loadListAtInit
         var timer;
         
         var loaded = false;
@@ -104,7 +105,7 @@ define(function(require, exports, module) {
             
             var newfile = function(e){
                 // Only mark dirty if file didn't exist yet
-                if (arrayCache.indexOf(e.path) == -1)
+                if (arrayCache.indexOf(e.path) == -1 && !e.path.match(/(?:^|\/)\./))
                     arrayCache.push(e.path);
             };
             fs.on("afterWriteFile", newfile);
@@ -143,7 +144,8 @@ define(function(require, exports, module) {
             fsCache.on("setShowHidden", quickUpdate);
             
             // Pre-load file list
-            updateFileCache();
+            if (loadListAtInit)
+                updateFileCache();
         }
         
         function offlineHandler(e){
@@ -373,7 +375,7 @@ define(function(require, exports, module) {
                 return;
             
             dirty = true;
-            if (panels.isActive("navigate")) {
+            if (panels.isActive("navigate") || timeout === 0) {
                 clearTimeout(timer);
                 timer = setTimeout(function(){ updateFileCache(true); }, timeout || 60000);
             }
@@ -385,6 +387,7 @@ define(function(require, exports, module) {
             if (updating)
                 return;
                 
+            ldSearch && (ldSearch.loading = true);
             updating = true;
             find.getFileList({
                 path    : "/",
@@ -397,6 +400,7 @@ define(function(require, exports, module) {
 
                 arrayCache = data.trim().split("\n");
                 
+                ldSearch && (ldSearch.loading = false);
                 updating = false;
                 reloadResults();
             });
