@@ -374,8 +374,14 @@ define(function(require, exports, module) {
             if (path && !fsCache.showHidden && path.charAt(0) == ".")
                 return;
             
+            if (timeout === 0) {
+                clearTimeout(timer);
+                updateFileCache(true);
+                return;
+            }
+            
             dirty = true;
-            if (panels.isActive("navigate") || timeout === 0) {
+            if (panels.isActive("navigate")) {
                 clearTimeout(timer);
                 timer = setTimeout(function(){ updateFileCache(true); }, timeout || 60000);
             }
