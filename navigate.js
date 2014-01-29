@@ -364,7 +364,7 @@ define(function(require, exports, module) {
             
             var sel = tree.selection.getSelectedNodes();
             if (lastSearch) {
-                filter(lastSearch, sel.length);
+                filter(lastSearch, sel.length, true);
             } else {
                 ldSearch.updateData(arrayCache);
             }
@@ -444,7 +444,7 @@ define(function(require, exports, module) {
          *
          */
         var lastResults;
-        function filter(keyword, nosel){
+        function filter(keyword, nosel, clear){
             keyword = keyword.replace(/\*/g, "");
     
             if (!arrayCache.length) {
@@ -475,7 +475,7 @@ define(function(require, exports, module) {
                 tree.provider.setScrollTop(0);
                 
                 var base;
-                if (lastSearch)
+                if (lastSearch && !clear)
                     base = keyword.substr(0, lastSearch.length) == lastSearch
                         ? lastResults : arrayCache;
                 else
