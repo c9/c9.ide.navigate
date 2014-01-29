@@ -105,7 +105,9 @@ define(function(require, exports, module) {
             
             var newfile = function(e){
                 // Only mark dirty if file didn't exist yet
-                if (arrayCache.indexOf(e.path) == -1 && !e.path.match(/(?:^|\/)\./))
+                if (arrayCache.indexOf(e.path) == -1 
+                  && !e.path.match(/(?:^|\/)\./)
+                  && !e.path.match(/\/(?:state|user|project)\.settings$/))
                     arrayCache.push(e.path);
             };
             fs.on("afterWriteFile", newfile);
@@ -368,11 +370,16 @@ define(function(require, exports, module) {
             }
         }
     
-        function markDirty(options, timeout){
+        function markDirty(options, timeout, clear){
             // Ignore hidden files
             var path = options && options.path || "";
             if (path && !fsCache.showHidden && path.charAt(0) == ".")
                 return;
+            
+            if (clear) {
+                arrayCache = [];
+                reloadResults();
+            }
             
             if (timeout === 0) {
                 clearTimeout(timer);
@@ -383,7 +390,9 @@ define(function(require, exports, module) {
             dirty = true;
             if (panels.isActive("navigate")) {
                 clearTimeout(timer);
-                timer = setTimeout(function(){ updateFileCache(true); }, timeout || 60000);
+                timer = setTimeout(function(){ 
+                    updateFileCache(true); 
+                }, timeout || 60000);
             }
         }
     
