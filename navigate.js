@@ -598,6 +598,7 @@ define(function(require, exports, module) {
             stopOutline();
             // Prevent files from being refreshed
             clearTimeout(timer);
+            txtGoToFile.blur();
         });
         plugin.on("unload", function(){
             loaded = false;
