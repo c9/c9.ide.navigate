@@ -1,7 +1,8 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", 
-        "fs", "panels", "fs.cache", "preferences", "c9", "tree", "commands"
+        "fs", "panels", "fs.cache", "preferences", "c9", "tree", "commands",
+        "layout"
     ];
     main.provides = ["navigate"];
     return main;
@@ -15,6 +16,7 @@ define(function(require, exports, module) {
         var fsCache  = imports["fs.cache"];
         var tabs     = imports.tabManager;
         var menus    = imports.menus;
+        var layout   = imports.layout;
         var watcher  = imports.watcher;
         var panels   = imports.panels;
         var find     = imports.find;
@@ -193,7 +195,7 @@ define(function(require, exports, module) {
             tree.renderer.setScrollMargin(0, 10);
 
             // @TODO this is probably not sufficient
-            window.addEventListener("resize", function(){ tree.resize() });
+            layout.on("resize", function(){ tree.resize() }, plugin);
             
             tree.textInput = txtGoToFile.ace.textInput;
             
