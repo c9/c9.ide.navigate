@@ -379,8 +379,8 @@ define(function(require, exports, module) {
                 return;
             
             if (clear) {
-                arrayCache = [];
-                reloadResults();
+                // arrayCache = [];
+                // reloadResults();
             }
             
             if (timeout === 0) {
