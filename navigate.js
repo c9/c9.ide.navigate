@@ -42,6 +42,7 @@ define(function(require, exports, module) {
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
         var lastSearch, lastPreviewed, cleaning, intoOutline;
+        var isReloadScheduled;
         
         var dirty          = true;
         var arrayCache     = [];
@@ -345,7 +346,11 @@ define(function(require, exports, module) {
         
         function reloadResults(){
             if (!winGoToFile) {
+                if (isReloadScheduled)
+                    return;
+                isReloadScheduled = true;
                 plugin.once("draw", function(){
+                    isReloadScheduled = false;
                     reloadResults();
                 });
                 return;
