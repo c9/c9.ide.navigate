@@ -289,20 +289,21 @@ define(function(require, exports, module) {
                     if (intoOutline)
                         stopOutline();
                     
-                    if (~val.indexOf(":")) {
-                        parts = val.split(":");
-                        if (parts[0]) {
-                            if (lastSearch != parts[0])
-                                filter(parts[0]);
+                    if (~val.indexOf(":"))
+                        parts = /^(.*?):(\d*)(?::(\d+))?$/g.exec(val);
+                    if (parts) {
+                        if (parts[1]) {
+                            if (lastSearch != parts[1])
+                                filter(parts[1]);
                             previewFile(true);
                             tab = lastPreviewed || tabs.focussedTab;
-                            if (tab && parts[1])
-                                tab.editor.ace.gotoLine(parts[1], parts[2]);
+                            if (tab && parts[2])
+                                tab.editor.ace.gotoLine(parts[2], parts[3]);
                         }
                         else {
                             tab = tabs.focussedTab;
-                            if (tab && parts[1])
-                                tab.editor.ace.gotoLine(parts[1], parts[2]);
+                            if (tab && parts[2])
+                                tab.editor.ace.gotoLine(parts[2], parts[3]);
                         }
                     }
                     else {
