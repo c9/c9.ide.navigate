@@ -205,9 +205,12 @@ var matchPath = module.exports.matchPath = function (path, keyword) {
     var result = [];
     var pathSplits = path.split("/");
     // Optimization
-    if (pathSplits.length > 4)
+    if (pathSplits.length > 4) {
         pathSplits = [pathSplits.slice(0, pathSplits.length - 4).join("/") + "/"]
             .concat(pathSplits.slice(pathSplits.length - 4, pathSplits.length));
+        if (pathSplits[0] == "/")
+            pathSplits[0] = "";
+    }
     var value = "";
     var k, i, j = -1;
     for (k = pathSplits.length-1; k >= 0  && !result.length; k--) {
