@@ -384,20 +384,22 @@ define(function(require, exports, module) {
             }
         }
     
-        function markDirty(options, timeout, clear){
+        function markDirty(options, timeout){
             // Ignore hidden files
             var path = options && options.path || "";
             if (path && !fsCache.showHidden && path.charAt(0) == ".")
                 return;
             
-            if (clear) {
-                // arrayCache = [];
-                // reloadResults();
-            }
-            
-            if (timeout === 0) {
+            if (timeout <= 0) {
                 clearTimeout(timer);
-                updateFileCache(true);
+                if (timeout < 0) {
+                    timer = setTimeout(function(){ 
+                        updateFileCache(true); 
+                    }, -1 * timeout);
+                }
+                else {
+                    updateFileCache(true);
+                }
                 return;
             }
             
@@ -415,7 +417,7 @@ define(function(require, exports, module) {
             clearTimeout(timer);
             if (updating)
                 return;
-                
+            
             ldSearch && (ldSearch.loading = true);
             updating = true;
             find.getFileList({
