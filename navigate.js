@@ -99,7 +99,7 @@ define(function(require, exports, module) {
             // Prefs
             prefs.add({
                 "General" : {
-                    "General" : {
+                    "Tree & Navigate" : {
                         "Enable Preview on Navigation" : {
                             type     : "checkbox",
                             position : 2000,
