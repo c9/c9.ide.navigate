@@ -60,7 +60,7 @@ module.exports.fileSearch = function(filelist, keyword) {
     var name, res = big ? [] : new Heap(), value, ext, displayName;
     for (var i = 0, s, j, k, q, p, m, n; i < l; i++) {
         displayName = filelist[i];
-        name        = displayName.toLowerCase();
+        name = displayName.toLowerCase();
 
         // We only add items that have the keyword in it's path
         value = 0;
@@ -129,9 +129,9 @@ module.exports.fileSearch = function(filelist, keyword) {
                 res.pop();
             if (res.size() < 100)
                 res.push({
-                    toString : toS,
-                    value : value,
-                    name  : displayName
+                    toString: toS,
+                    value: value,
+                    name: displayName
                 });
         }
     }

@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     "use strict";
     
-    var oop  = require("ace/lib/oop");
+    var oop = require("ace/lib/oop");
     var Base = require("ace_tree/list_data");
     
     var ListData = function(array) {
@@ -13,13 +13,13 @@ define(function(require, exports, module) {
         this.rowHeight = 42;
         
         Object.defineProperty(this, "loaded", {
-            get : function(){ return this.visibleItems.length; }
+            get: function(){ return this.visibleItems.length; }
         });
     };
     oop.inherits(ListData, Base);
     (function() {
         
-        this.updateData = function(array){
+        this.updateData = function(array) {
             this.visibleItems = array || [];
             
             // @TODO Deal with selection
@@ -35,7 +35,7 @@ define(function(require, exports, module) {
                 return "No files found that match '" + this.keyword + "'";
         };
         
-        this.replaceStrong = function(value){
+        this.replaceStrong = function(value) {
             if (!value)
                 return "";
                 

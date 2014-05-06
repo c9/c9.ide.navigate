@@ -8,46 +8,46 @@ define(function(require, exports, module) {
     return main;
     
     function main(options, imports, register) {
-        var Panel    = imports.Panel;
+        var Panel = imports.Panel;
         var settings = imports.settings;
-        var ui       = imports.ui;
-        var c9       = imports.c9;
-        var fs       = imports.fs;
-        var fsCache  = imports["fs.cache"];
-        var tabs     = imports.tabManager;
-        var menus    = imports.menus;
-        var layout   = imports.layout;
-        var watcher  = imports.watcher;
-        var panels   = imports.panels;
-        var find     = imports.find;
+        var ui = imports.ui;
+        var c9 = imports.c9;
+        var fs = imports.fs;
+        var fsCache = imports["fs.cache"];
+        var tabs = imports.tabManager;
+        var menus = imports.menus;
+        var layout = imports.layout;
+        var watcher = imports.watcher;
+        var panels = imports.panels;
+        var find = imports.find;
         var filetree = imports.tree;
-        var prefs    = imports.preferences;
+        var prefs = imports.preferences;
         var commands = imports.commands;
         
-        var markup   = require("text!./navigate.xml");
-        var search   = require('./search');
-        var Tree     = require("ace_tree/tree");
+        var markup = require("text!./navigate.xml");
+        var search = require('./search');
+        var Tree = require("ace_tree/tree");
         var ListData = require("./dataprovider");
         var basename = require("path").basename;
         
         /***** Initialization *****/
         
         var plugin = new Panel("Ajax.org", main.consumes, {
-            index        : options.index || 200,
-            caption      : "Navigate",
-            elementName  : "winGoToFile",
-            minWidth     : 130,
-            autohide     : true,
-            where        : options.where || "left"
+            index: options.index || 200,
+            caption: "Navigate",
+            elementName: "winGoToFile",
+            minWidth: 130,
+            autohide: true,
+            where: options.where || "left"
         });
-        var emit   = plugin.getEmitter();
+        var emit = plugin.getEmitter();
         
         var winGoToFile, txtGoToFile, tree, ldSearch;
         var lastSearch, lastPreviewed, cleaning, intoOutline;
         var isReloadScheduled;
         
-        var dirty          = true;
-        var arrayCache     = [];
+        var dirty = true;
+        var arrayCache = [];
         var loadListAtInit = options.loadListAtInit
         var timer;
         
@@ -57,10 +57,10 @@ define(function(require, exports, module) {
             loaded = true;
             
             var command = plugin.setCommand({
-                name    : "navigate",
-                hint    : "search for a filename, line or symbol and jump to it",
-                bindKey : { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" },
-                extra   : function(editor, args, e){
+                name: "navigate",
+                hint: "search for a filename, line or symbol and jump to it",
+                bindKey: { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" },
+                extra: function(editor, args, e) {
                     if (args && args.keyword) {
                         txtGoToFile.setValue(args.keyword);
                         filter(args.keyword);
@@ -69,14 +69,14 @@ define(function(require, exports, module) {
             });
             
             commands.addCommand({
-                name    : "navigate_altkey",
-                hint    : "search for a filename, line or symbol and jump to it",
-                bindKey : {
+                name: "navigate_altkey",
+                hint: "search for a filename, line or symbol and jump to it",
+                bindKey: {
                     mac: "Command-O", 
                     win: "Ctrl-O"
                 },
-                group : "Panels",
-                exec  : function() {
+                group: "Panels",
+                exec: function() {
                     command.exec();
                 }
             }, plugin);
@@ -101,9 +101,9 @@ define(function(require, exports, module) {
                 "General" : {
                     "Tree & Navigate" : {
                         "Enable Preview on Navigation" : {
-                            type     : "checkbox",
-                            position : 2000,
-                            path     : "user/general/@preview-navigate"
+                            type: "checkbox",
+                            position: 2000,
+                            path: "user/general/@preview-navigate"
                         }
                     }
                 }
@@ -112,7 +112,7 @@ define(function(require, exports, module) {
             // Update when the fs changes
             var quickUpdate = markDirty.bind(null, null, 2000);
             
-            var newfile = function(e){
+            var newfile = function(e) {
                 // Only mark dirty if file didn't exist yet
                 if (arrayCache.indexOf(e.path) == -1 
                   && !e.path.match(/(?:^|\/)\./)
@@ -121,15 +121,15 @@ define(function(require, exports, module) {
             };
             fs.on("afterWriteFile", newfile);
             fs.on("afterSymlink", newfile);
-            var rmfile = function(e){
+            var rmfile = function(e) {
                 var idx = arrayCache.indexOf(e.path);
                 if (~idx) arrayCache.splice(idx, 1);
             };
             fs.on("afterUnlink", rmfile);
             fs.on("afterRmfile", rmfile);
-            var rmdir = function(e){
+            var rmdir = function(e) {
                 var path = e.path;
-                var len  = path.length;
+                var len = path.length;
                 for (var i = arrayCache.length - 1; i >= 0; i--) {
                     if (arrayCache[i].substr(0, len) == path)
                         arrayCache.splice(i, 1);
@@ -139,7 +139,7 @@ define(function(require, exports, module) {
             fs.on("afterCopy", quickUpdate);
             fs.on("afterMkdir", quickUpdate);
             fs.on("afterMkdirP", quickUpdate);
-            fs.on("afterRename", function(e){
+            fs.on("afterRename", function(e) {
                 rmfile(e);
                 newfile({ path: e.args[1] });
             });
@@ -159,7 +159,7 @@ define(function(require, exports, module) {
                 updateFileCache();
         }
         
-        function offlineHandler(e){
+        function offlineHandler(e) {
             // Online
             if (e.state & c9.STORAGE) {
                 txtGoToFile.enable();
@@ -177,7 +177,7 @@ define(function(require, exports, module) {
         }
         
         var drawn = false;
-        function draw(options){
+        function draw(options) {
             if (drawn) return;
             drawn = true;
             
@@ -187,13 +187,13 @@ define(function(require, exports, module) {
             // Import CSS
             ui.insertCss(require("text!./style.css"), plugin);
             
-            var treeParent   = plugin.getElement("navigateList");
-            txtGoToFile      = plugin.getElement("txtGoToFile");
-            winGoToFile      = plugin.getElement("winGoToFile");
+            var treeParent = plugin.getElement("navigateList");
+            txtGoToFile = plugin.getElement("txtGoToFile");
+            winGoToFile = plugin.getElement("winGoToFile");
 
             // Create the Ace Tree
-            tree      = new Tree(treeParent.$int);
-            ldSearch  = new ListData(arrayCache);
+            tree = new Tree(treeParent.$int);
+            ldSearch = new ListData(arrayCache);
             ldSearch.search = search;
             
             // Assign the dataprovider
@@ -208,17 +208,17 @@ define(function(require, exports, module) {
             
             txtGoToFile.ace.commands.addCommands([
                 {
-                    bindKey : "ESC",
-                    exec    : function(){ plugin.hide(); }
+                    bindKey: "ESC",
+                    exec: function(){ plugin.hide(); }
                 }, {
-                    bindKey : "Enter",
-                    exec    : function(){ openFile(true); }
+                    bindKey: "Enter",
+                    exec: function(){ openFile(true); }
                 }, {
-                    bindKey : "Shift-Enter",
-                    exec    : function(){ openFile(false, true); }
+                    bindKey: "Shift-Enter",
+                    exec: function(){ openFile(false, true); }
                 }, {
-                    bindKey : "Shift-Space",
-                    exec    : function(){ previewFile(true); }
+                    bindKey: "Shift-Space",
+                    exec: function(){ previewFile(true); }
                 },
             ]);
             function forwardToTree() {
@@ -247,7 +247,7 @@ define(function(require, exports, module) {
                 };
             }));
             
-            tree.on("click", function(ev){
+            tree.on("click", function(ev) {
                 var e = ev.domEvent;
                 if (!e.shiftKey && !e.metaKey  && !e.ctrlKey  && !e.altKey)
                 if (tree.selection.getSelectedNodes().length === 1)
@@ -322,7 +322,7 @@ define(function(require, exports, module) {
                 previewFile(); 
             });
     
-            function onblur(e){
+            function onblur(e) {
                 if (!winGoToFile.visible)
                     return;
                 
@@ -367,7 +367,7 @@ define(function(require, exports, module) {
             
             // Wait until window is visible
             if (!winGoToFile.visible) {
-                winGoToFile.on("prop.visible", function visible(e){
+                winGoToFile.on("prop.visible", function visible(e) {
                     if (e.value) {
                         reloadResults();
                         winGoToFile.off("prop.visible", visible);
@@ -384,7 +384,7 @@ define(function(require, exports, module) {
             }
         }
     
-        function markDirty(options, timeout){
+        function markDirty(options, timeout) {
             // Ignore hidden files
             var path = options && options.path || "";
             if (path && !fsCache.showHidden && path.charAt(0) == ".")
@@ -413,7 +413,7 @@ define(function(require, exports, module) {
         }
     
         var updating = false;
-        function updateFileCache(isDirty){
+        function updateFileCache(isDirty) {
             clearTimeout(timer);
             if (updating)
                 return;
@@ -421,11 +421,11 @@ define(function(require, exports, module) {
             ldSearch && (ldSearch.loading = true);
             updating = true;
             find.getFileList({
-                path    : "/",
-                nocache : isDirty,
-                hidden  : fsCache.showHidden,
-                buffer  : true
-            }, function(err, data){
+                path: "/",
+                nocache: isDirty,
+                hidden: fsCache.showHidden,
+                buffer: true
+            }, function(err, data) {
                 if (err)
                     console.error(err);
                 else
@@ -460,7 +460,7 @@ define(function(require, exports, module) {
          *
          */
         var lastResults;
-        function filter(keyword, nosel, clear){
+        function filter(keyword, nosel, clear) {
             keyword = keyword.replace(/\*/g, "");
     
             if (!arrayCache.length) {
@@ -500,7 +500,7 @@ define(function(require, exports, module) {
                 searchResults = search.fileSearch(base, keyword);
             }
     
-            lastSearch  = keyword;
+            lastSearch = keyword;
             lastResults = searchResults.newlist;
     
             if (searchResults)
@@ -538,7 +538,7 @@ define(function(require, exports, module) {
             tree.select(tree.provider.getNodeAtIndex(first));
         }
 
-        function openFile(noanim, nohide){
+        function openFile(noanim, nohide) {
             if (!ldSearch.loaded)
                 return false;
 
@@ -556,20 +556,20 @@ define(function(require, exports, module) {
             for (var i = 0, l = nodes.length; i < l; i++) {
                 var id = nodes[i].id;
                 if (!id) continue;
-                var path  = "/" + id.replace(/^[\/]+/, "");
+                var path = "/" + id.replace(/^[\/]+/, "");
                 
                 var focus = id === cursor.id;
                 tabs.open({
-                    path   : path, 
-                    noanim : l > 1,
-                    focus : focus && (nohide ? "soft" : true)
+                    path: path, 
+                    noanim: l > 1,
+                    focus: focus && (nohide ? "soft" : true)
                 }, fn);
             }
             
             lastPreviewed = null;
         }
         
-        function previewFile(force){
+        function previewFile(force) {
             if ((!lastPreviewed || !lastPreviewed.loaded)
               && !settings.getBool("user/general/@preview-navigate") && !force)
                 return;
@@ -582,7 +582,7 @@ define(function(require, exports, module) {
             if (!value)
                 return;
                 
-            var path  = "/" + value.replace(/^[\/]+/, "");
+            var path = "/" + value.replace(/^[\/]+/, "");
             lastPreviewed = tabs.preview({ path: path }, function(){});
         }
         
@@ -591,7 +591,7 @@ define(function(require, exports, module) {
         plugin.on("load", function(){
             load();
         });
-        plugin.on("draw", function(e){
+        plugin.on("draw", function(e) {
             draw(e);
         });
         plugin.on("enable", function(){
@@ -600,14 +600,14 @@ define(function(require, exports, module) {
         plugin.on("disable", function(){
             
         });
-        plugin.on("show", function(e){
+        plugin.on("show", function(e) {
             cleanInput();
             txtGoToFile.focus();
             txtGoToFile.select();
             if (dirty)
                 updateFileCache(true);
         });
-        plugin.on("hide", function(e){
+        plugin.on("hide", function(e) {
             // Cancel Preview
             tabs.preview({ cancel: true });
             // Stop Outline if there
@@ -618,7 +618,7 @@ define(function(require, exports, module) {
         });
         plugin.on("unload", function(){
             loaded = false;
-            drawn  = false;
+            drawn = false;
         });
         
         /***** Register and define API *****/

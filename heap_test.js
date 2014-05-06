@@ -8,7 +8,7 @@ if (typeof process !== "undefined")
 
 define(function(require, exports, module) {
     var assert = require("chai").assert;
-    var Heap   = require("./heap");
+    var Heap = require("./heap");
     
     describe("Heap", function(){
         it ("test heap array", function(next) {
