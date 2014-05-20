@@ -26,9 +26,11 @@ define(function(require, exports, module) {
             this._signal("change");
         };
         
+        this.isLoading = function() {};
+        
         this.getEmptyMessage = function(){
             if (!this.keyword)
-                return this.loading
+                return this.isLoading()
                     ? "Loading file list. One moment please..."
                     : "No files found.";
             else

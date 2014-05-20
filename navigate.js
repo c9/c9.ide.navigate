@@ -48,7 +48,7 @@ define(function(require, exports, module) {
         
         var dirty = true;
         var arrayCache = [];
-        var loadListAtInit = options.loadListAtInit
+        var loadListAtInit = options.loadListAtInit;
         var timer;
         
         var loaded = false;
@@ -195,6 +195,8 @@ define(function(require, exports, module) {
             tree = new Tree(treeParent.$int);
             ldSearch = new ListData(arrayCache);
             ldSearch.search = search;
+            
+            ldSearch.isLoading = function() { return updating };
             
             // Assign the dataprovider
             tree.setDataProvider(ldSearch);
@@ -418,7 +420,6 @@ define(function(require, exports, module) {
             if (updating)
                 return;
             
-            ldSearch && (ldSearch.loading = true);
             updating = true;
             find.getFileList({
                 path: "/",
@@ -431,7 +432,6 @@ define(function(require, exports, module) {
                 else
                     arrayCache = data.trim().split("\n");
                 
-                ldSearch && (ldSearch.loading = false);
                 updating = false;
                 reloadResults();
             });
