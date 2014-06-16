@@ -93,18 +93,45 @@ module.exports.fileSearch = function(filelist, keyword) {
                 // The shorter the path depth, the higher prio we give
                 value += 200 - Math.min(name.split("/").length * 10, 150);
             }
+            // Detect a path search
+            else if (keywordLower.indexOf("/") > -1) {
+                var idx = keywordLower.lastIndexOf("/");
+                var rest = name.substr(j + idx + 1);
+                var file = keywordLower.substr(idx + 1);
+                
+                // We give prio to full path matches
+                if (j === 0)
+                    value += 1000;
+                
+                // When searching for a file extension, 
+                if (file.indexOf(".") > -1) {
+                    // Prioritize filename matches
+                    if (rest.indexOf(file) === 0)
+                        value += 200;
+                    
+                    // The shorter the filename length, the higher prio we give
+                    value += 200 - Math.min((rest.length - file.length) * 10, 150);
+                }
+                // When the full filename is matched, give a higher prio
+                else if (rest.substr(file.length).match(/^\..*(\/|$)/))
+                    value += 201;
+                else
+                    value += 50;
+            }
             // Then the rest
             else
                 value += 50;
         }
         // Check for spatial matches
         else {
-            if (big || name.split("/").length > 5)
+            if (big || name.split("/").length > 10)
                 continue;
+                
             var result;
             result = matchPath(name, keywordLower);
-            if (!result.length || result.length > 10)
+            if (!result.length || result.length > 20)
                 continue;
+                
             var matched = name.substring(result[0].val.length);
             // The less the number of groups matched, the higher prio we give
             value += 20 - Math.min((result.length-2)*3, 19);
