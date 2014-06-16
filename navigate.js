@@ -461,7 +461,7 @@ define(function(require, exports, module) {
          */
         var lastResults;
         function filter(keyword, nosel, clear) {
-            keyword = keyword.replace(/\*/g, "");
+            keyword = keyword.replace(/\*/g, "").replace(/^\.\//, "");
     
             if (!arrayCache.length) {
                 lastSearch = keyword;
