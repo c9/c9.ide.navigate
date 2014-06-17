@@ -28,6 +28,8 @@ var fileTypes = {
  * Search through a list of filenames.
  */
 module.exports.fileSearch = function(filelist, keyword) {
+    if (!keyword) keyword = "";
+    
     var klen = keyword.length;
     var keywordLower = keyword.toLowerCase();
 
