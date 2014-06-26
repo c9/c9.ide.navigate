@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", 
         "fs", "panels", "fs.cache", "preferences", "c9", "tree", "commands",
-        "layout"
+        "layout", "util"
     ];
     main.provides = ["navigate"];
     return main;
@@ -19,6 +19,7 @@ define(function(require, exports, module) {
         var layout = imports.layout;
         var watcher = imports.watcher;
         var panels = imports.panels;
+        var util = imports.util;
         var find = imports.find;
         var filetree = imports.tree;
         var prefs = imports.preferences;
@@ -537,6 +538,11 @@ define(function(require, exports, module) {
             // select the first item in the list
             tree.select(tree.provider.getNodeAtIndex(first));
         }
+        
+        var reHome = new RegExp("^" + util.escapeRegExp(c9.home));
+        function normalizePath(path){
+            return ("/" + path.replace(/^[\/]+/, "")).replace(reHome, "~");
+        }
 
         function openFile(noanim, nohide) {
             if (!ldSearch.loaded)
@@ -556,7 +562,7 @@ define(function(require, exports, module) {
             for (var i = 0, l = nodes.length; i < l; i++) {
                 var id = nodes[i].id;
                 if (!id) continue;
-                var path = "/" + id.replace(/^[\/]+/, "");
+                var path = normalizePath(id);
                 
                 var focus = id === cursor.id;
                 tabs.open({
@@ -582,7 +588,7 @@ define(function(require, exports, module) {
             if (!value)
                 return;
                 
-            var path = "/" + value.replace(/^[\/]+/, "");
+            var path = normalizePath(value);
             lastPreviewed = tabs.preview({ path: path }, function(){});
         }
         
