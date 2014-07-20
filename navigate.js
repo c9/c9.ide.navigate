@@ -60,7 +60,7 @@ define(function(require, exports, module) {
             var command = plugin.setCommand({
                 name: "navigate",
                 hint: "search for a filename, line or symbol and jump to it",
-                bindKey: { mac: "Command-E|Command-P", win: "Ctrl-E|Ctrl-P" },
+                bindKey: { mac: "Command-E|Command-P", win: "Ctrl-E" },
                 extra: function(editor, args, e) {
                     if (args && args.keyword) {
                         txtGoToFile.setValue(args.keyword);
@@ -72,14 +72,9 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "navigate_altkey",
                 hint: "search for a filename, line or symbol and jump to it",
-                bindKey: {
-                    mac: "Command-O", 
-                    win: "Ctrl-O"
-                },
+                bindKey: { mac: "Command-O", win: "Ctrl-O" },
                 group: "Panels",
-                exec: function() {
-                    command.exec();
-                }
+                exec: command.exec
             }, plugin);
             
             panels.on("afterAnimate", function(){
