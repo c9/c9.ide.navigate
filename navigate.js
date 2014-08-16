@@ -534,11 +534,6 @@ define(function(require, exports, module) {
             tree.select(tree.provider.getNodeAtIndex(first));
         }
         
-        var reHome = new RegExp("^" + util.escapeRegExp(c9.home));
-        function normalizePath(path){
-            return ("/" + path.replace(/^[\/]+/, "")).replace(reHome, "~");
-        }
-
         function openFile(noanim, nohide) {
             if (!ldSearch.loaded)
                 return false;
@@ -557,9 +552,10 @@ define(function(require, exports, module) {
             for (var i = 0, l = nodes.length; i < l; i++) {
                 var id = nodes[i].id;
                 if (!id) continue;
-                var path = normalizePath(id);
                 
+                var path = id;
                 var focus = id === cursor.id;
+                
                 tabs.open({
                     path: path, 
                     noanim: l > 1,
@@ -583,7 +579,7 @@ define(function(require, exports, module) {
             if (!value)
                 return;
                 
-            var path = normalizePath(value);
+            var path = util.normalizePath(value);
             lastPreviewed = tabs.preview({ path: path }, function(){});
         }
         
