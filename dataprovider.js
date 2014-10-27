@@ -3,6 +3,7 @@ define(function(require, exports, module) {
     
     var oop = require("ace/lib/oop");
     var Base = require("ace_tree/list_data");
+    var escapeHTML = require("ace/lib/lang").escapeHTML;
     
     var ListData = function(array) {
         Base.call(this);
@@ -42,20 +43,21 @@ define(function(require, exports, module) {
                 return "";
                 
             var keyword = (this.keyword || "").replace(/\*/g, "");
-            var i;
-            if ((i = value.lastIndexOf(keyword)) !== -1)
-                return value.substring(0, i) + "<strong>" + keyword + "</strong>" 
-                    + value.substring(i+keyword.length);
+            var i = value.lastIndexOf(keyword);
+            if (i !== -1)
+                return escapeHTML(value.substring(0, i))
+                    + "<strong>" + escapeHTML(keyword) + "</strong>" 
+                    + escapeHTML(value.substring(i + keyword.length));
             
             var result = this.search.matchPath(value, keyword);
             if (!result.length)
-                return value;
+                return escapeHTML(value);
                 
             result.forEach(function(part, i) {
                 if (part.match)
-                    result[i] = "<strong>" + part.val + "</strong>";
+                    result[i] = "<strong>" + escapeHTML(part.val) + "</strong>";
                 else
-                    result[i] = part.val;
+                    result[i] = escapeHTML(part.val);
             });
             return result.join("");
         };
