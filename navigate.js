@@ -321,7 +321,7 @@ define(function(require, exports, module) {
             });
     
             function onblur(e) {
-                if (!winGoToFile.visible)
+                if (!winGoToFile || !winGoToFile.visible)
                     return;
                 
                 var to = e.toElement;
@@ -616,6 +616,18 @@ define(function(require, exports, module) {
         plugin.on("unload", function(){
             loaded = false;
             drawn = false;
+            
+            winGoToFile = null;
+            txtGoToFile = null;
+            tree = null;
+            ldSearch = null;
+            lastSearch = null;
+            lastPreviewed = null;
+            cleaning = null;
+            intoOutline = null;
+            isReloadScheduled = null;
+            
+            dirty = true;
         });
         
         /***** Register and define API *****/
