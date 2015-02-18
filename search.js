@@ -195,14 +195,16 @@ module.exports.fileSearch = function(filelist, keyword) {
 //     return h = c / d, j = (h * (d / f) + h) / 2, j /= i, g && j + .15 < 1 && (j += .15), j
 // };
 
-var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensitive, results, head) {
+var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensitive, results, head, indexProperty) {
     if (caseInsensitive)
         keyword = keyword.toLowerCase();
     results = results || [];
     head = head || 0;
     for (var i = 0; i < tree.length; i++) {
         var node = tree[i];
-        var name = node.name;
+        var name = indexProperty
+            ? node[indexProperty]
+            : node.name || node.label || node.caption || (typeof node == "string" ? node : "");
         if (caseInsensitive)
             name = name.toLowerCase();
         var index = name.indexOf(keyword);
