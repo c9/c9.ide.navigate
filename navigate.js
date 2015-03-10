@@ -220,6 +220,7 @@ define(function(require, exports, module) {
                 },
             ]);
             function forwardToTree() {
+                cleanInput();
                 tree.execCommand(this.name);
             }
             txtGoToFile.ace.commands.addCommands([
@@ -254,69 +255,9 @@ define(function(require, exports, module) {
             
             tree.selection.$wrapAround = true;
             
-            txtGoToFile.ace.on("input", function(e) {
-                var val = txtGoToFile.getValue();
-                var parts, tab;
-                
-                if (cleaning) {
-                    cleaning = false;
-                    return;
-                }
-                
-                if (~val.indexOf("@")) {
-                    parts = val.split("@");
-                    if (parts[0]) {
-                        if (lastSearch != parts[0])
-                            filter(parts[0]);
-                        previewFile(true);
-                        tab = lastPreviewed || tabs.focussedTab;
-                        if (tab) {
-                            emit("outline", { value: parts[1], tab: tab });
-                            intoOutline = true;
-                        }
-                    }
-                    else {
-                        tab = tabs.focussedTab;
-                        if (tab) {
-                            emit("outline", { value: parts[1], tab: tab });
-                            intoOutline = true;
-                        }
-                    }
-                }
-                else {
-                    if (intoOutline)
-                        stopOutline();
-                    
-                    if (~val.indexOf(":"))
-                        parts = /^(.*?):(\d*)(?::(\d+))?$/g.exec(val);
-                    if (parts) {
-                        if (parts[1]) {
-                            if (lastSearch != parts[1])
-                                filter(parts[1]);
-                            previewFile(true);
-                            tab = lastPreviewed || tabs.focussedTab;
-                            if (tab && parts[2])
-                                tab.editor.ace.gotoLine(parts[2], parts[3]);
-                        }
-                        else {
-                            tab = tabs.focussedTab;
-                            if (tab && parts[2])
-                                tab.editor.ace.gotoLine(parts[2], parts[3]);
-                        }
-                    }
-                    else {
-                        filter(val);
-                    }
-                }
-    
-                if (dirty && val.length > 0 && ldSearch.loaded) {
-                    dirty = false;
-                    updateFileCache(true);
-                }
-            });
+            txtGoToFile.ace.on("input", onInput);
             
             tree.selection.on("change", function(){
-                cleanInput();
                 previewFile(); 
             });
     
@@ -350,6 +291,67 @@ define(function(require, exports, module) {
         }
         
         /***** Methods *****/
+        
+        function onInput(updatePreview) {
+            var val = txtGoToFile.getValue();
+            var parts, tab;
+            
+            if (cleaning) {
+                cleaning = false;
+                return;
+            }
+            
+            if (~val.indexOf("@")) {
+                parts = val.split("@");
+                if (parts[0]) {
+                    if (lastSearch != parts[0])
+                        filter(parts[0]);
+                    if (updatePreview !== false) previewFile(true);
+                    tab = lastPreviewed || tabs.focussedTab;
+                    if (tab) {
+                        emit("outline", { value: parts[1], tab: tab });
+                        intoOutline = true;
+                    }
+                }
+                else {
+                    tab = tabs.focussedTab;
+                    if (tab) {
+                        emit("outline", { value: parts[1], tab: tab });
+                        intoOutline = true;
+                    }
+                }
+            }
+            else {
+                if (intoOutline)
+                    stopOutline();
+                
+                if (~val.indexOf(":"))
+                    parts = /^(.*?):(\d*)(?::(\d+))?$/g.exec(val);
+                if (parts) {
+                    if (parts[1]) {
+                        if (lastSearch != parts[1])
+                            filter(parts[1]);
+                        if (updatePreview !== false) previewFile(true);
+                        tab = lastPreviewed || tabs.focussedTab;
+                        if (tab && parts[2])
+                            tab.editor.ace.gotoLine(parts[2], parts[3]);
+                    }
+                    else {
+                        tab = tabs.focussedTab;
+                        if (tab && parts[2])
+                            tab.editor.ace.gotoLine(parts[2], parts[3]);
+                    }
+                }
+                else {
+                    filter(val);
+                }
+            }
+
+            if (dirty && val.length > 0 && ldSearch.loaded) {
+                dirty = false;
+                updateFileCache(true);
+            }
+        }
         
         function reloadResults(){
             if (!winGoToFile) {
@@ -580,7 +582,9 @@ define(function(require, exports, module) {
                 return;
                 
             var path = util.normalizePath(value);
-            lastPreviewed = tabs.preview({ path: path }, function(){});
+            lastPreviewed = tabs.preview({ path: path }, function(){
+                onInput(false);
+            });
         }
         
         /***** Lifecycle *****/
