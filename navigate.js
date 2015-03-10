@@ -36,7 +36,6 @@ define(function(require, exports, module) {
         var plugin = new Panel("Ajax.org", main.consumes, {
             index: options.index || 200,
             caption: "Navigate",
-            elementName: "winGoToFile",
             minWidth: 130,
             autohide: true,
             where: options.where || "left"
@@ -185,7 +184,7 @@ define(function(require, exports, module) {
             
             var treeParent = plugin.getElement("navigateList");
             txtGoToFile = plugin.getElement("txtGoToFile");
-            winGoToFile = plugin.getElement("winGoToFile");
+            winGoToFile = options.aml;
 
             // Create the Ace Tree
             tree = new Tree(treeParent.$int);
