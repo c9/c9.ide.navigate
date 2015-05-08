@@ -228,6 +228,8 @@ define(function(require, exports, module) {
                 "goToEnd",
                 "pageup",
                 "gotopageup",
+                "pagedown",
+                "gotopageDown",
                 "scrollup",
                 "scrolldown",
                 "goUp",
