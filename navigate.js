@@ -343,7 +343,7 @@ define(function(require, exports, module) {
                             tab.editor.ace.gotoLine(parts[2], parts[3]);
                     }
                 }
-                else {
+                else if (updatePreview !== false) {
                     filter(val);
                 }
             }
