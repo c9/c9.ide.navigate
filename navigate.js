@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Panel", "settings", "ui", "watcher", "menus", "tabManager", "find", 
         "fs", "panels", "fs.cache", "preferences", "c9", "tree", "commands",
-        "layout", "util"
+        "layout", "util", "c9.analytics"
     ];
     main.provides = ["navigate"];
     return main;
@@ -24,6 +24,7 @@ define(function(require, exports, module) {
         var filetree = imports.tree;
         var prefs = imports.preferences;
         var commands = imports.commands;
+        var analytics = imports["c9.analytics"];
         
         var markup = require("text!./navigate.xml");
         var search = require('./search');
@@ -64,6 +65,9 @@ define(function(require, exports, module) {
                     if (args && args.keyword) {
                         txtGoToFile.setValue(args.keyword);
                         filter(args.keyword);
+                    }
+                    if (args && args.source !== "click") {
+                        analytics.log("Opened Navigate using shortcut");
                     }
                 }
             });
@@ -603,6 +607,7 @@ define(function(require, exports, module) {
             
         });
         plugin.on("show", function(e) {
+            analytics.log("Opened Navigate");
             cleanInput();
             txtGoToFile.focus();
             txtGoToFile.select();
