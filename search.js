@@ -217,7 +217,7 @@ var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensi
             items: node.items ? treeSearch(node.items, keyword, caseInsensitive) : []
         };
         for (var p in node) {
-            if (node.hasOwnProperty(p) && p !== "items")
+            if (node[p] && p !== "items")
                 result[p] = node[p];
         }
         if (index === 0) {
