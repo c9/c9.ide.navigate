@@ -213,13 +213,20 @@ var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensi
                 results = treeSearch(node.items, keyword, caseInsensitive, results, head);
             continue;
         }
-        var result = {
-            items: node.items ? treeSearch(node.items, keyword, caseInsensitive) : []
-        };
-        for (var p in node) {
-            if (node[p] && p !== "items")
-                result[p] = node[p];
+        var result = node.clone ? node.clone() : {};
+        result.items = node.items
+            ? (result.keepChildren
+                ? result.items
+                : treeSearch(node.items, keyword, caseInsensitive))
+            : [];
+        
+        if (!node.clone) {
+            for (var p in node) {
+                if (node[p] && p !== "items")
+                    result[p] = node[p];
+            }
         }
+        
         if (index === 0) {
             results.splice(head, 0, result);
             head++;
