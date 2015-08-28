@@ -209,7 +209,7 @@ var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensi
             name = name.toLowerCase();
         var index = name.indexOf(keyword);
         if (index === -1) {
-            if (node.items)
+            if (node.items && !node.keepChildren)
                 results = treeSearch(node.items, keyword, caseInsensitive, results, head);
             continue;
         }
