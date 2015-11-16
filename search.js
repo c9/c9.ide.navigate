@@ -207,14 +207,17 @@ var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensi
         var name = indexProperty
             ? node[indexProperty] || ""
             : node.name || node.label || node.caption || (typeof node == "string" ? node : "");
+            
         if (caseInsensitive)
             name = name.toLowerCase();
+            
         var index = name.indexOf(keyword);
         if (index === -1) {
             if (node.items && !node.keepChildren)
                 results = treeSearch(node.items, keyword, caseInsensitive, results, head);
             continue;
         }
+        
         var result = node.clone ? node.clone() : {};
         result.items = node.items
             ? (result.keepChildren
