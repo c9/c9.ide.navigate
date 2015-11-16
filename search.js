@@ -198,12 +198,14 @@ module.exports.fileSearch = function(filelist, keyword) {
 var treeSearch = module.exports.treeSearch = function(tree, keyword, caseInsensitive, results, head, indexProperty) {
     if (caseInsensitive)
         keyword = keyword.toLowerCase();
+    
     results = results || [];
     head = head || 0;
+    
     for (var i = 0; i < tree.length; i++) {
         var node = tree[i];
         var name = indexProperty
-            ? node[indexProperty]
+            ? node[indexProperty] || ""
             : node.name || node.label || node.caption || (typeof node == "string" ? node : "");
         if (caseInsensitive)
             name = name.toLowerCase();
