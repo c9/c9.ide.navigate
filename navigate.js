@@ -37,6 +37,7 @@ define(function(require, exports, module) {
         var plugin = new Panel("Ajax.org", main.consumes, {
             index: options.index || 200,
             caption: "Navigate",
+            buttonCSSClass: "navigate",
             minWidth: 130,
             autohide: true,
             where: options.where || "left"
