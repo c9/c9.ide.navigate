@@ -208,6 +208,9 @@ define(function(require, exports, module) {
             
             tree.textInput = txtGoToFile.ace.textInput;
             
+            var key = commands.getPrettyHotkey("navigate");
+            txtGoToFile.setAttribute("initial-message", key);
+            
             txtGoToFile.ace.commands.addCommands([
                 {
                     bindKey: "ESC",
