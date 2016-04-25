@@ -424,7 +424,7 @@ define(function(require, exports, module) {
         var updating = false;
         function updateFileCache(isDirty) {
             clearTimeout(timer);
-            if (updating || c9.readOnly)
+            if (updating)
                 return;
             
             updating = true;
@@ -642,7 +642,6 @@ define(function(require, exports, module) {
             isReloadScheduled = null;
             
             dirty = true;
-            updating = false;
         });
         
         /***** Register and define API *****/
