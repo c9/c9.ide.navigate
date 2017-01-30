@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         this.rowHeight = 42;
         
         Object.defineProperty(this, "loaded", {
-            get: function(){ return this.visibleItems.length; }
+            get: function() { return this.visibleItems.length; }
         });
     };
     oop.inherits(ListData, Base);
@@ -29,7 +29,7 @@ define(function(require, exports, module) {
         
         this.isLoading = function() {};
         
-        this.getEmptyMessage = function(){
+        this.getEmptyMessage = function() {
             if (!this.keyword)
                 return this.isLoading()
                     ? "Loading file list. One moment please..."

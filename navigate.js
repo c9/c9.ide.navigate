@@ -54,7 +54,7 @@ define(function(require, exports, module) {
         var timer;
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -81,26 +81,26 @@ define(function(require, exports, module) {
                 exec: command.exec
             }, plugin);
             
-            panels.on("afterAnimate", function(){
+            panels.on("afterAnimate", function() {
                 if (panels.isActive("navigate"))
                     tree && tree.resize();
             });
             
             // Menus
             menus.addItemByPath("Goto/Goto Anything...", new ui.item({ 
-                command : "navigate" 
+                command: "navigate" 
             }), 100, plugin);
     
             // Settings
-            settings.on("read", function(){
+            settings.on("read", function() {
                 settings.setDefaults("user/general", [["preview-navigate", "false"]]);
             }, plugin);
             
             // Prefs
             prefs.add({
-                "General" : {
-                    "Tree & Navigate" : {
-                        "Enable Preview on Navigation" : {
+                "General": {
+                    "Tree & Navigate": {
+                        "Enable Preview on Navigation": {
                             type: "checkbox",
                             position: 2000,
                             path: "user/general/@preview-navigate"
@@ -196,7 +196,7 @@ define(function(require, exports, module) {
             ldSearch = new ListData(arrayCache);
             ldSearch.search = search;
             
-            ldSearch.isLoading = function() { return updating };
+            ldSearch.isLoading = function() { return updating; };
             
             // Assign the dataprovider
             tree.setDataProvider(ldSearch);
@@ -204,7 +204,7 @@ define(function(require, exports, module) {
             tree.renderer.setScrollMargin(0, 10);
 
             // @TODO this is probably not sufficient
-            layout.on("resize", function(){ tree.resize() }, plugin);
+            layout.on("resize", function() { tree.resize(); }, plugin);
             
             tree.textInput = txtGoToFile.ace.textInput;
             
@@ -214,16 +214,16 @@ define(function(require, exports, module) {
             txtGoToFile.ace.commands.addCommands([
                 {
                     bindKey: "ESC",
-                    exec: function(){ plugin.hide(); }
+                    exec: function() { plugin.hide(); }
                 }, {
                     bindKey: "Enter",
-                    exec: function(){ openFile(true); }
+                    exec: function() { openFile(true); }
                 }, {
                     bindKey: "Shift-Enter",
-                    exec: function(){ openFile(false, true); }
+                    exec: function() { openFile(false, true); }
                 }, {
                     bindKey: "Shift-Space",
-                    exec: function(){ previewFile(true); }
+                    exec: function() { previewFile(true); }
                 },
             ]);
             function forwardToTree() {
@@ -257,7 +257,7 @@ define(function(require, exports, module) {
             
             tree.on("click", function(ev) {
                 var e = ev.domEvent;
-                if (!e.shiftKey && !e.metaKey  && !e.ctrlKey  && !e.altKey)
+                if (!e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey)
                 if (tree.selection.getSelectedNodes().length === 1)
                     openFile(true);
             });
@@ -266,7 +266,7 @@ define(function(require, exports, module) {
             
             txtGoToFile.ace.on("input", onInput);
             
-            tree.selection.on("change", function(){
+            tree.selection.on("change", function() {
                 previewFile(); 
             });
     
@@ -284,13 +284,13 @@ define(function(require, exports, module) {
                 }
                 
                 // TODO add better support for overlay panels
-                setTimeout(function(){ plugin.hide() }, 10);
+                setTimeout(function() { plugin.hide(); }, 10);
             }
     
             apf.addEventListener("movefocus", onblur);
     
             // Focus the input field
-            setTimeout(function(){
+            setTimeout(function() {
                 txtGoToFile.focus();
             }, 10);
             
@@ -362,12 +362,12 @@ define(function(require, exports, module) {
             }
         }
         
-        function reloadResults(){
+        function reloadResults() {
             if (!winGoToFile) {
                 if (isReloadScheduled)
                     return;
                 isReloadScheduled = true;
-                plugin.once("draw", function(){
+                plugin.once("draw", function() {
                     isReloadScheduled = false;
                     reloadResults();
                 });
@@ -402,7 +402,7 @@ define(function(require, exports, module) {
             if (timeout <= 0) {
                 clearTimeout(timer);
                 if (timeout < 0) {
-                    timer = setTimeout(function(){ 
+                    timer = setTimeout(function() { 
                         updateFileCache(true); 
                     }, -1 * timeout);
                 }
@@ -415,7 +415,7 @@ define(function(require, exports, module) {
             dirty = true;
             if (panels.isActive("navigate")) {
                 clearTimeout(timer);
-                timer = setTimeout(function(){ 
+                timer = setTimeout(function() { 
                     updateFileCache(true); 
                 }, timeout || 60000);
             }
@@ -446,7 +446,7 @@ define(function(require, exports, module) {
             dirty = false;
         }
         
-        function stopOutline(){
+        function stopOutline() {
             if (!intoOutline) return;
             
             emit("outline.stop");
@@ -454,7 +454,7 @@ define(function(require, exports, module) {
             intoOutline = false;
         }
         
-        function cleanInput(){
+        function cleanInput() {
             var value = txtGoToFile.getValue();
             if (value.match(/[:\@]/)) {
                 cleaning = true;
@@ -553,13 +553,13 @@ define(function(require, exports, module) {
             var cursor = tree.selection.getCursor();
     
             // Cancel Preview and Keep the tab if there's only one
-            if (tabs.preview({ cancel: true, keep : nodes.length == 1 }) === true 
+            if (tabs.preview({ cancel: true, keep: nodes.length == 1 }) === true 
               || intoOutline)
                 return nohide || plugin.hide();
             
             nohide || plugin.hide();
             
-            var fn = function(){};
+            var fn = function() {};
             for (var i = 0, l = nodes.length; i < l; i++) {
                 var id = nodes[i].id;
                 if (!id) continue;
@@ -591,23 +591,23 @@ define(function(require, exports, module) {
                 return;
                 
             var path = util.normalizePath(value);
-            lastPreviewed = tabs.preview({ path: path }, function(){
+            lastPreviewed = tabs.preview({ path: path }, function() {
                 onInput(false);
             });
         }
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
         plugin.on("draw", function(e) {
             draw(e);
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
         plugin.on("show", function(e) {
@@ -627,7 +627,7 @@ define(function(require, exports, module) {
             clearTimeout(timer);
             txtGoToFile.blur();
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
             drawn = false;
             

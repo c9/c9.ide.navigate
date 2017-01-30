@@ -19,11 +19,11 @@ function Heap(param) {
     this.__defineGetter__("N", function () {
         return pq.length - 1;
     });
-    for (var k = Math.floor(this.N/2); k >= 1; k--)
+    for (var k = Math.floor(this.N / 2); k >= 1; k--)
         this.sink(k);
 }
 
-(function(){
+(function() {
     this.empty = function() {
         return this.N === 0;
     };
@@ -45,22 +45,22 @@ function Heap(param) {
     this.pop = function() {
         if (this.empty()) throw new Exception("Priority queue underflow");
         this.$exch(1, this.N);
-        var min = this.pq.splice(this.pq.length-1, 1)[0];
+        var min = this.pq.splice(this.pq.length - 1, 1)[0];
         this.sink(1);
         return min;
     };
 
     this.heapify = function(k) {
-        while (k > 1 && this.$greater(Math.floor(k/2), k)) {
-            this.$exch(k, Math.floor(k/2));
-            k = Math.floor(k/2);
+        while (k > 1 && this.$greater(Math.floor(k / 2), k)) {
+            this.$exch(k, Math.floor(k / 2));
+            k = Math.floor(k / 2);
         }
     };
 
     this.sink = function(k) {
-        while (2*k <= this.N) {
-            var j = 2*k;
-            if (j < this.N && this.$greater(j, j+1)) j++;
+        while (2 * k <= this.N) {
+            var j = 2 * k;
+            if (j < this.N && this.$greater(j, j + 1)) j++;
             if (!this.$greater(k, j)) break;
             this.$exch(k, j);
             k = j;

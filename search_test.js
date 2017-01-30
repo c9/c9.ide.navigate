@@ -10,7 +10,7 @@ define(function(require, exports, module) {
     var assert = require("chai").assert;
     var search = require("./search");
     
-    describe("Search", function(){
+    describe("Search", function() {
         this.timeout(30000);
     
         it("test searching", function(next) {
@@ -46,7 +46,7 @@ define(function(require, exports, module) {
         it("test measure", function (next) {
             var spawn = require("child_process").spawn;
             var process = spawn("find", [".", "-type", "f"],
-                {cwd: __dirname+"/../../"});
+                { cwd: __dirname + "/../../" });
             var stdout = [];
             process.stdout.on("data", function (data) {
                 stdout.push(data.toString());
@@ -54,7 +54,7 @@ define(function(require, exports, module) {
             process.on("exit", function (code) {
                 var fileList = stdout.join("").split("\n");
                 console.log("Num:", fileList.length);
-                fileList.splice(fileList.length-1, 1);
+                fileList.splice(fileList.length - 1, 1);
                 var sd = new Date();
                 var result = search.fileSearch(fileList, "noderunner");
                 console.log("took: " + (new Date() - sd));

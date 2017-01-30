@@ -10,7 +10,7 @@ define(function(require, exports, module) {
     var assert = require("chai").assert;
     var Heap = require("./heap");
     
-    describe("Heap", function(){
+    describe("Heap", function() {
         it ("test heap array", function(next) {
             var h = new Heap([10, 5, 20, 1, 3]);
             assert.equal(h.pop(), 1);

@@ -50,7 +50,7 @@ module.exports.fileSearch = function(filelist, keyword) {
      */
 
     var type = "value";
-    var toS = function(){
+    var toS = function() {
         return this[type];
     };
     
@@ -135,9 +135,9 @@ module.exports.fileSearch = function(filelist, keyword) {
                 
             var matched = name.substring(result[0].val.length);
             // The less the number of groups matched, the higher prio we give
-            value += 20 - Math.min((result.length-2)*3, 19);
+            value += 20 - Math.min((result.length - 2) * 3, 19);
             // The shorter the path depth, the higher prio we give
-            value += 15 - Math.min(name.split("/").length*2, 14);
+            value += 15 - Math.min(name.split("/").length * 2, 14);
             // The shorter the match diff, the higher prio we give
             value += 10 - Math.min(matched.length - keyword.length, 9);
             value += 20; // extension
@@ -149,7 +149,7 @@ module.exports.fileSearch = function(filelist, keyword) {
             // Check extension
             s = name.lastIndexOf(".");
             if (s > -1)
-                value -= 10 * (fileTypes[name.substr(s+1)] || 0) || 20;
+                value -= 10 * (fileTypes[name.substr(s + 1)] || 0) || 20;
             else
                 value -= 20;
 
@@ -255,7 +255,7 @@ var matchPath = module.exports.matchPath = function (path, keyword) {
     }
     var value = "";
     var k, i, j = -1;
-    for (k = pathSplits.length-1; k >= 0  && !result.length; k--) {
+    for (k = pathSplits.length - 1; k >= 0 && !result.length; k--) {
         value = (k > 0 ? "/" : "") + pathSplits[k] + value;
         // find matched parts
         var matchI = null;
@@ -272,7 +272,7 @@ var matchPath = module.exports.matchPath = function (path, keyword) {
             else {
                 missI = missI === null ? i : missI;
                 if (matchI !== null) {
-                    result.push({ match: true, val: value.substring(matchI, i)});
+                    result.push({ match: true, val: value.substring(matchI, i) });
                     matchI = null;
                 }
             }
@@ -285,7 +285,7 @@ var matchPath = module.exports.matchPath = function (path, keyword) {
         if (missI !== null)
             result.push({ val: value.substring(missI, i) });
         if (matchI !== null)
-            result.push({ match: true, val: value.substring(matchI, i)});
+            result.push({ match: true, val: value.substring(matchI, i) });
         result.push({ val: value.substring(i, value.length) });
         // Add the first non matched part if exists
         if (k)
